@@ -51,6 +51,8 @@ let read_from_csv file : t =
   | _ -> failwith "An unknown error occured"
 
 (* Property-test helpers *)
+let label_to_string (_, label) =
+  match label with Positive -> "P" | Negative -> "N"
 
 (* Count the number of positive and negative labels *)
 let count_labels table =
@@ -60,6 +62,6 @@ let count_labels table =
     table (0, 0)
 
 let to_list (table : t) =
-  Hashtbl.fold
-    (fun key label acc -> (key, if label = Positive then 1 else -1) :: acc)
-    table []
+  Hashtbl.fold (fun key label acc -> (key, label) :: acc) table []
+
+let get_key (key : key) : int list = key
