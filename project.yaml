@@ -1,0 +1,32 @@
+---
+# Members of your group.
+group:  
+  - name: Aaditya Bahl
+    netid: ab2844
+  - name: Danielle Imogu
+    netid: dii3
+  - name: Jonah Bernard
+    netid: jb2528
+
+# Your PM.
+pm:
+  name: Tami Takada
+  netid: tt554
+# Set to false if you don't want your gallery entry to be public.
+publish: true
+# Pithy title
+title: "Our Crack At Machine Learning (OCAML)"
+# OK if this is a Cornell Github link, but public gallery viewers won't be able to see it.
+git-repo: "https://github.com/Jonahcb/3110-Final-Project"
+# Replace the URL with your own demo video.
+demo-video-url: "https://www.youtube.com/watch?v=avphWXjB1sk"
+# Write a short, attention-grabbing description of your project.
+desc: >
+  Our project aims to build a neural network (or perceptron, depending on time constraints)
+  equipped with a user-friendly graphical user interface (GUI). This interface is designed
+  not only to enhance the learning experience for users but also to serve as a dynamic
+  platform for exploring the processes underlying how neural networks learn and adapt over
+  time. The visualization aspect is crucial - as it will allow users to observe in real-time
+  how the weights change during the training process. Consequently, this will provide clarity
+  to abstract concepts such as gradient descent and activation, making them more concrete and
+  understandable.

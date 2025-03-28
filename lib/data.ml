@@ -1,7 +1,17 @@
 type key = int list
 type label = Positive | Negative
-type t = (key, label) Hashtbl.t
 
+type t = (key, label) Hashtbl.t
+(** AF: [type t] represents a collection of feature vectors and their
+    corresponding labels, where the feature vectors serve as the keys of the
+    hashtable of [type t] and the labels serve as the values associated with the
+    keys.
+
+    RI: All keys must be feature vectors of the same dimension. *)
+
+(** [check_csv_format loaded_file] is true if all lists in [loaded_file] are of
+    the same length and the first value in each of the lists is either 1 or -1.
+    It is false otherwise. *)
 let rec check_csv_format loaded_file =
   match loaded_file with
   | [] -> true
@@ -12,6 +22,11 @@ let rec check_csv_format loaded_file =
          | h2 :: t2 -> List.length h1 = List.length h2)
       && check_csv_format t1
 
+(** [int_list_of_string_list lst] is the list [lst] with all of the elements
+    converted from type [string] to [int]
+
+    Raises: [Failure "There are non-numerical values in this file"] if there are
+    non-numerical elements in lst. *)
 let rec int_list_of_string_list lst =
   try
     match lst with
@@ -19,6 +34,8 @@ let rec int_list_of_string_list lst =
     | h :: t -> int_of_string h :: int_list_of_string_list t
   with Failure x -> failwith "There are non-numerical values in this file"
 
+(** [populate_table table lst] adds each list in [lst] to [table] as a key value
+    pair, where the value is the head of the list, and the key is the tail. *)
 let rec populate_table (table : t) lst =
   match lst with
   | [] -> ()
@@ -31,6 +48,8 @@ let rec populate_table (table : t) lst =
           Hashtbl.add table key label;
           populate_table table t1)
 
+(** [read_from_csv file] is a collection of all label/feature vector pairs
+    loaded from the file at location [file]. *)
 let read_from_csv file : t =
   try
     let loaded_file = List.map int_list_of_string_list (Csv.load file) in
