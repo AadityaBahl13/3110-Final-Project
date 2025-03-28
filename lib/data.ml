@@ -25,8 +25,11 @@ let rec populate_table (table : t) lst =
   | h1 :: t1 -> (
       match h1 with
       | [] -> ()
-      | h2 :: t2 -> Hashtbl.add table t2 (if h2 > 0 then Positive else Negative)
-      )
+      | h2 :: t2 ->
+          let key = t2 in
+          let label = if h2 > 0 then Positive else Negative in
+          Hashtbl.add table key label;
+          populate_table table t1)
 
 let read_from_csv file : t =
   try
@@ -46,3 +49,19 @@ let read_from_csv file : t =
   | Csv.Failure (x, y, str) -> failwith str
   | Sys_error str -> failwith str
   | _ -> failwith "An unknown error occured"
+
+(* Property-test helpers *)
+let label_to_string (_, label) =
+  match label with Positive -> "P" | Negative -> "N"
+
+(* Count the number of positive and negative labels *)
+let count_labels table =
+  Hashtbl.fold
+    (fun _ label (pos, neg) ->
+      match label with Positive -> (pos + 1, neg) | Negative -> (pos, neg + 1))
+    table (0, 0)
+
+let to_list (table : t) =
+  Hashtbl.fold (fun key label acc -> (key, label) :: acc) table []
+
+let get_key (key : key) : int list = key
