@@ -27,7 +27,7 @@ let test_read_from_csv_invalid _ =
 let tests =
   "suite"
   >::: [
-         "test_count_labels" >:: test_count_labels "../data/valid.csv" (1, 1);
+         "test_count_labels" >:: test_count_labels "../data/valid.csv" (7, 6);
          "test_read_from_csv_invalid" >:: test_read_from_csv_invalid;
          "test_read_from_csv_empty"
          >:: test_count_labels "../data/test_empty.csv" (0, 0);
