@@ -30,12 +30,3 @@ val sum : t -> ?axis:int -> int
 
     Raises: OutOfBounds if axis greater than 1 or less than 0 *)
 
-val multiply : t -> t -> t
-(** [add t1 t2] is the tensor whose values in a given position are the product
-    of the values of [t1] and [t2] in that same position.
-
-    Raises: InvalidDimension if [t1] and [t2] are not of the same dimension *)
-
-val pow : t -> int -> t
-(** [pow t exp] is the tensor whose values in a given position are the values of
-    [t] that same position raised to the power [exp] *)
