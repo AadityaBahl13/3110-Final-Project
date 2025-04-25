@@ -1,3 +1,5 @@
+open Bogue
+
 type key = int list
 type label = Positive | Negative
 
@@ -84,3 +86,4 @@ let to_list (table : t) =
   Hashtbl.fold (fun key label acc -> (key, label) :: acc) table []
 
 let get_key (key : key) : int list = key
+let color_of_label = function Positive -> Draw.blue | Negative -> Draw.red

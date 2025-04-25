@@ -1,3 +1,5 @@
+open Bogue
+
 type t
 (** [type t] represents a collection of feature vectors and their associated
     label *)
@@ -23,3 +25,6 @@ val get_key : key -> int list
 
 val label_to_string : key * label -> string
 (** [label_to_string (key, label)] converts [(key,label)] to [type string] *)
+
+val color_of_label : label -> Draw.rgb
+(** [color_of_label label] returns the associated color for each label*)

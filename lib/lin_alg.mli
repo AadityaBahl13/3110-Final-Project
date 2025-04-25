@@ -1,6 +1,6 @@
 type t
 (** [type t] represents a tensor of up to two dimensions *)
-
+(* 
 exception InvalidDimensions
 exception OutOfBound
 
@@ -38,4 +38,4 @@ val multiply : t -> t -> t
 
 val pow : t -> int -> t
 (** [pow t exp] is the tensor whose values in a given position are the values of
-    [t] that same position raised to the power [exp] *)
+    [t] that same position raised to the power [exp] *) *)
