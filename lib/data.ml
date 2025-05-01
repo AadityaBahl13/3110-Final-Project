@@ -1,4 +1,6 @@
-type key = int list
+open Lin_alg
+
+type key = Lin_alg.t
 type label = Positive | Negative
 
 type t = (key, label) Hashtbl.t
@@ -43,7 +45,7 @@ let rec populate_table (table : t) lst =
       match h1 with
       | [] -> ()
       | h2 :: t2 ->
-          let key = t2 in
+          let key = create [ t2 ] in
           let label = if h2 > 0 then Positive else Negative in
           Hashtbl.add table key label;
           populate_table table t1)
@@ -83,4 +85,4 @@ let count_labels table =
 let to_list (table : t) =
   Hashtbl.fold (fun key label acc -> (key, label) :: acc) table []
 
-let get_key (key : key) : int list = key
+let get_key (key : key) : Lin_alg.t = key
