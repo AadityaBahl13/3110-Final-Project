@@ -40,12 +40,17 @@ let main () =
   let board = Bogue.of_layout layout in
   Bogue.run board *)
 
-(* Transform your feature space into screen space *)
+(* Transform feature space into screen space *)
 let transform (x, y) ~w ~h =
   let scale = 10 in
   let x' = (x * scale) + (w / 2) in
   let y' = (h / 2) - (y * scale) in
   (x', y')
+
+let draw_axes w h renderer =
+  let axis_color = Draw.opaque Draw.black in
+  Draw.line ~color:axis_color ~x0:0 ~y0:(h / 2) ~x1:w ~y1:(h / 2) renderer;
+  Draw.line ~color:axis_color ~x0:(w / 2) ~y0:0 ~x1:(w / 2) ~y1:h renderer
 
 let make_plot_area (table : (key * label) list) =
   let width, height = (400, 400) in
@@ -55,14 +60,7 @@ let make_plot_area (table : (key * label) list) =
   try
     let area = Widget.get_sdl_area widget in
     let draw_fun renderer =
-      (* Draw axes *)
-      let axis_color = Draw.opaque Draw.black in
-      (* X-axis *)
-      Draw.line ~color:axis_color ~x0:0 ~y0:(height / 2) ~x1:width
-        ~y1:(height / 2) renderer;
-      (* Y-axis *)
-      Draw.line ~color:axis_color ~x0:(width / 2) ~y0:0 ~x1:(width / 2)
-        ~y1:height renderer;
+      draw_axes width height renderer;
 
       List.iter
         (fun (key, label_value) ->
