@@ -24,9 +24,12 @@ val dot : t -> t -> t
 val transpose : t -> t
 (** [transpose t] is the transpose of tensor [t] *)
 
-val sum : t -> ?axis:int -> int
+val sum : ?axis:int option -> t -> t
 (** [sum t ax] is the sum of all of the values in [t] along the axis [ax]. If
     axis is not provided, it is the sum of all of the values in [t].
 
     Raises: OutOfBounds if axis greater than 1 or less than 0 *)
 
+val to_list : t -> int list list
+val shape : t -> int * int
+val get : t -> int -> int -> int

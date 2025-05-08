@@ -37,7 +37,7 @@ let add t1 t2 = { t1 with matrix = add_helper t1.matrix t2.matrix }
 
 let dot_helper arr1 arr2 =
   let r, d, c = (Array.length arr1, Array.length arr2, Array.length arr2.(0)) in
-  let arr = Array.make r (Array.make c 0) in
+  let arr = Array.init_matrix r c (fun r c -> 0) in
   for i = 0 to r - 1 do
     for j = 0 to d - 1 do
       let x = arr1.(i).(j) in
@@ -63,13 +63,13 @@ let dot t1 t2 =
     let arr =
       dot_helper (matrix_of_list_list t1.matrix) (matrix_of_list_list t2.matrix)
     in
-    list_list_of_matrix arr
+    { matrix = list_list_of_matrix arr; rows = t1.rows; columns = t2.columns }
 
 let sum_row row = List.fold_left ( + ) 0 row
 
-let sum t ?axs =
+let sum ?(axis = None) t =
   let new_matrix, new_rows, new_cols =
-    match axs with
+    match axis with
     | None -> ([ [ sum_row (List.map sum_row t.matrix) ] ], 1, 1)
     | Some 0 ->
         (* sum along rows: returns a list of row sums *)
@@ -80,3 +80,9 @@ let sum t ?axs =
     | _ -> raise OutOfBound
   in
   { matrix = new_matrix; rows = new_rows; columns = new_cols }
+
+let to_list t = t.matrix
+let shape t = (t.rows, t.columns)
+
+let get t r c =
+  try List.nth (List.nth t.matrix r) c with Failure x -> raise OutOfBound

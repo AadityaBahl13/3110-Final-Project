@@ -82,7 +82,5 @@ let count_labels table =
       match label with Positive -> (pos + 1, neg) | Negative -> (pos, neg + 1))
     table (0, 0)
 
-let to_list (table : t) =
+let table_to_list (table : t) =
   Hashtbl.fold (fun key label acc -> (key, label) :: acc) table []
-
-let get_key (key : key) : Lin_alg.t = key
