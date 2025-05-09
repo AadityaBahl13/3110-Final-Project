@@ -81,6 +81,10 @@ let sum ?(axis = None) t =
   in
   { matrix = new_matrix; rows = new_rows; columns = new_cols }
 
+let scalar_mul_helper mat c =
+  List.map (fun e -> List.map (fun f -> f * c) e) mat
+
+let scalar_mul t c = { t with matrix = scalar_mul_helper t.matrix c }
 let to_list t = t.matrix
 let shape t = (t.rows, t.columns)
 

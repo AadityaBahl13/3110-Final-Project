@@ -12,7 +12,7 @@ let main () =
   let file = Sys.argv.(1) in
   try
     let table = read_from_csv file in
-    let table_list = table_to_list table in
+    let table_list = data_to_list table in
 
     (* Print the table contents using label_to_string *)
     print_endline "Table Contents:";

@@ -30,6 +30,7 @@ val sum : ?axis:int option -> t -> t
 
     Raises: OutOfBounds if axis greater than 1 or less than 0 *)
 
+val scalar_mul : t -> int -> t
 val to_list : t -> int list list
 val shape : t -> int * int
 val get : t -> int -> int -> int
