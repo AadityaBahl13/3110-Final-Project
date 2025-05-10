@@ -1,4 +1,8 @@
 open Finalproject.Data
+open Finalproject.Lin_alg
+
+let string_of_list lst =
+  List.fold_left (fun acc e -> acc ^ " " ^ string_of_int e) "[" lst ^ " ]"
 
 let main () =
   if Array.length Sys.argv <> 2 then (
@@ -8,14 +12,14 @@ let main () =
   let file = Sys.argv.(1) in
   try
     let table = read_from_csv file in
-    let table_list = to_list table in
+    let table_list = data_to_list table in
 
     (* Print the table contents using label_to_string *)
     print_endline "Table Contents:";
     List.iter
       (fun (key, label_value) ->
         let key_str =
-          String.concat ", " (List.map string_of_int (get_key key))
+          String.concat ", " (List.map string_of_list (to_list key))
         in
         let label_str = label_to_string (key, label_value) in
         print_endline ("[" ^ key_str ^ "] -> " ^ label_str))

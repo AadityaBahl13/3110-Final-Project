@@ -2,11 +2,15 @@ type t
 (** [type t] represents a collection of feature vectors and their associated
     label *)
 
-type key
+type tensor = Lin_alg.t
 (** [type key] is the type of the label *)
 
 type label
 (** [type label] is the type of the feature vector *)
+
+val positive : label
+val negative : label
+val int_of_label : label -> int
 
 val read_from_csv : string -> t
 (** [read_from_csv file] is a collection of all label/feature vector pairs
@@ -15,11 +19,11 @@ val read_from_csv : string -> t
 val count_labels : t -> int * int
 (** [count_labels t] the number of positive and negative labels in [t] *)
 
-val to_list : t -> (key * label) list
+val data_to_list : t -> (tensor * label) list
 (** [to_list t] converts the contents of [t] to a list *)
 
-val get_key : key -> int list
-(** [get_key key] converts [key] to [type int list] *)
+val get_dimension : t -> int
+val get_data_set : t -> (tensor, label) Hashtbl.t
 
-val label_to_string : key * label -> string
+val label_to_string : tensor * label -> string
 (** [label_to_string (key, label)] converts [(key,label)] to [type string] *)
