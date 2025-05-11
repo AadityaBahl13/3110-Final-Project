@@ -24,7 +24,7 @@ val dot : t -> t -> t
 val transpose : t -> t
 (** [transpose t] is the transpose of tensor [t] *)
 
-val sum : t -> ?axis:int -> int
+val sum : ?axis:int option -> t -> t
 (** [sum t ax] is the sum of all of the values in [t] along the axis [ax]. If
     axis is not provided, it is the sum of all of the values in [t].
 
@@ -39,3 +39,8 @@ val multiply : t -> t -> t
 val pow : t -> int -> t
 (** [pow t exp] is the tensor whose values in a given position are the values of
     [t] that same position raised to the power [exp] *) *)
+
+val scalar_mul : t -> int -> t
+val to_list : t -> int list list
+val shape : t -> int * int
+val get : t -> int -> int -> int

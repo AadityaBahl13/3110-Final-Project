@@ -1,0 +1,53 @@
+open Lin_alg
+open Data
+
+type t = {
+  data : Data.t;
+  steps : int ref;
+  max_step : int;
+  weight : Lin_alg.t ref;
+  bias : int ref;
+}
+
+let init data_set max_step =
+  {
+    data = data_set;
+    steps = ref 0;
+    max_step;
+    weight =
+      ref (create [ Array.to_list (Array.make (get_dimension data_set) 0) ]);
+    bias = ref 0;
+  }
+
+let get_weight perceptron = !(perceptron.weight)
+let get_bias perceptron = !(perceptron.bias)
+
+let predict perceptron x =
+  let output =
+    get (dot (transpose (get_weight perceptron)) x) 0 0 + get_bias perceptron
+  in
+  if output >= 0 then positive else negative
+
+let step perceptron data x y =
+  incr perceptron.steps;
+  if Hashtbl.find (get_data_set data) x <> y then (
+    perceptron.weight :=
+      add (get_weight perceptron) (scalar_mul x (int_of_label y));
+    perceptron.bias := get_bias perceptron + int_of_label y;
+    false)
+  else true
+
+let rec train_helper perceptron data data_set =
+  match data_set with
+  | [] -> true
+  | (tensor, label) :: t ->
+      if !(perceptron.steps) < perceptron.max_step then
+        step perceptron data tensor label && train_helper perceptron data t
+      else true
+
+let rec train_loop perceptron data =
+  let no_error = train_helper perceptron data (data_to_list data) in
+  if (not no_error) && !(perceptron.steps) < perceptron.max_step then
+    train_loop perceptron data
+
+let train perceptron data = train_loop perceptron data
