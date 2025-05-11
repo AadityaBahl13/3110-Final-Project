@@ -1,5 +1,6 @@
 open Finalproject.Data
 open Finalproject.Lin_alg
+open Finalproject.Perceptron
 open Bogue
 open Cairo
 module W = Widget
@@ -80,17 +81,38 @@ let make_plot_area (table : (tensor * label) list) =
     Layout.resident widget
   with Invalid_argument msg -> L.empty ~w:width ~h:height ()
 
+let make_title_screen () =
+  let title_label = W.label "OCAML Final Project" in
+  let start_btn =
+    W.button "Start" ~action:(fun x -> print_endline "Welcome!")
+  in
+  let inner_layout = L.tower_of_w ~w:400 [ title_label; start_btn ] in
+  L.set_height inner_layout 400;
+  inner_layout
+
+(* Main Menu Screen with two buttons: "Visualize Perceptron" and "Read Data" *)
+let main_menu () =
+  let visualize_button =
+    Widget.button "Visualize Perceptron" ~action:(fun _ ->
+        print_endline "Perceptron")
+  in
+  let read_data_button =
+    Widget.button "Read Data" ~action:(fun _ -> print_endline "Read Data")
+  in
+  Layout.tower_of_w [ visualize_button; read_data_button ]
+
 let main2 () =
   if Array.length Sys.argv <> 2 then (
     print_endline ("Usage: " ^ Sys.argv.(0) ^ " <csv_file>");
     exit 1);
 
-  let file = Sys.argv.(1) in
+  (* let file = Sys.argv.(1) in *)
   try
-    let table = read_from_csv file in
-    let table_list = data_to_list table in
-    let layout = make_plot_area table_list in
-    let board = Bogue.of_layout layout in
+    (* let table = read_from_csv file in *)
+    (* let table_list = data_to_list table in *)
+    (* let layout = make_plot_area table_list in *)
+    let title_layout = main_menu () in
+    let board = Bogue.of_layout title_layout in
     Bogue.run board
   with
   | Failure msg -> ()
