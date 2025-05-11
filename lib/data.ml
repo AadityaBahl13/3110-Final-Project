@@ -1,5 +1,7 @@
+open Bogue
 open Lin_alg
 
+type key = int list
 type tensor = Lin_alg.t
 type label = Positive | Negative
 
@@ -94,6 +96,9 @@ let count_labels data =
     (fun _ label (pos, neg) ->
       match label with Positive -> (pos + 1, neg) | Negative -> (pos, neg + 1))
     (get_data_set data) (0, 0)
+
+let get_key (key : key) : int list = key
+let color_of_label = function Positive -> Draw.blue | Negative -> Draw.red
 
 let data_to_list (data : t) =
   Hashtbl.fold (fun key label acc -> (key, label) :: acc) (get_data_set data) []
