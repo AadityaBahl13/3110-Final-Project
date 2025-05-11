@@ -45,7 +45,7 @@ let main () =
   let board = Bogue.of_layout layout in
   Bogue.run board *)
 
-(* Transform feature space into screen space *)
+(* ---------- Utilities ---------- *)
 let transform (x, y) ~w ~h =
   let scale = 10 in
   let x' = (x * scale) + (w / 2) in
@@ -81,16 +81,58 @@ let make_plot_area (table : (tensor * label) list) =
     Layout.resident widget
   with Invalid_argument msg -> L.empty ~w:width ~h:height ()
 
-let make_title_screen () =
-  let title_label = W.label "OCAML Final Project" in
-  let start_btn =
-    W.button "Start" ~action:(fun x -> print_endline "Welcome!")
-  in
-  let inner_layout = L.tower_of_w ~w:400 [ title_label; start_btn ] in
-  L.set_height inner_layout 400;
-  inner_layout
+(* ---------- App State ---------- *)
 
-(* Main Menu Screen with two buttons: "Visualize Perceptron" and "Read Data" *)
+type screen = Title | MainMenu | Plot of (tensor * label) list
+
+let current_screen = ref Title
+let previous_screen = ref None
+
+let build_screen scr =
+  match scr with
+  | Title ->
+      let title_label = W.label "OCAML Final Project" in
+      let start_btn =
+        W.button "Start" ~action:(fun _ -> current_screen := MainMenu)
+      in
+      L.tower_of_w ~w:400 [ title_label; start_btn ]
+  | MainMenu ->
+      let visualize_button =
+        Widget.button "Visualize Perceptron" ~action:(fun _ ->
+            print_endline "Perceptron")
+      in
+      let read_data_button =
+        Widget.button "Read Data" ~action:(fun _ -> print_endline "Read Data")
+      in
+      let back_button =
+        Widget.button "Back" ~action:(fun _ -> current_screen := Title)
+      in
+      let label = W.label "Main Menu" in
+      Layout.tower_of_w
+        [ label; visualize_button; read_data_button; back_button ]
+  | _ -> L.empty ~w:400 ~h:400 ()
+
+(* ---------- Layout + Update ---------- *)
+
+let root_layout = L.empty ~w:400 ~h:400 ~name:"Main Layout" ()
+
+let update_screen () =
+  if Some !current_screen <> !previous_screen then (
+    let new_layout = build_screen !current_screen in
+    L.set_rooms ~sync:false root_layout [ new_layout ];
+    L.fit_content root_layout;
+    previous_screen := Some !current_screen)
+
+(* ---------- Entry Point ---------- *)
+
+let () =
+  (* Set initial layout *)
+  let init = build_screen !current_screen in
+  L.set_rooms ~sync:false root_layout [ init ];
+  L.fit_content root_layout;
+  Bogue.run ~before_display:update_screen (Bogue.of_layout root_layout)
+
+(* ---------- Other Functions ---------- *)
 let main_menu () =
   let visualize_button =
     Widget.button "Visualize Perceptron" ~action:(fun _ ->
@@ -101,23 +143,36 @@ let main_menu () =
   in
   Layout.tower_of_w [ visualize_button; read_data_button ]
 
+let make_title_screen () =
+  let title_label = W.label "OCAML Final Project" in
+  let start_btn = W.button "Start" ~action:(fun x -> print_endline "Next") in
+  let inner_layout = L.tower_of_w ~w:400 [ title_label; start_btn ] in
+  L.set_height inner_layout 400;
+  inner_layout
+
+(* 
 let main2 () =
   if Array.length Sys.argv <> 2 then (
     print_endline ("Usage: " ^ Sys.argv.(0) ^ " <csv_file>");
     exit 1);
+  current_board := Bogue.of_layout (make_title_screen ());
+  Bogue.run !current_board
 
-  (* let file = Sys.argv.(1) in *)
+(* let file = Sys.argv.(1) in
   try
     (* let table = read_from_csv file in *)
     (* let table_list = data_to_list table in *)
     (* let layout = make_plot_area table_list in *)
-    let title_layout = main_menu () in
-    let board = Bogue.of_layout title_layout in
-    Bogue.run board
+    let _ = change_screen (make_title_screen ()) in
+    (* let title_layout = make_title_screen () in *)
+    let board = Bogue.of_layout root in
+    Bogue.run
+      ~after_display:(fun () -> change_screen (make_title_screen ()))
+      board
   with
   | Failure msg -> ()
-  | _ -> ()
+  | _ -> () *)
 
 let () =
   main ();
-  main2 ()
+  main2 () *)
