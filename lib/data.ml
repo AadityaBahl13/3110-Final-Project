@@ -97,7 +97,7 @@ let count_labels data =
       match label with Positive -> (pos + 1, neg) | Negative -> (pos, neg + 1))
     (get_data_set data) (0, 0)
 
-let get_key (key : key) : int list = key
+(* let get_key (key: tensor) : int list = to_list key *)
 let color_of_label = function Positive -> Draw.blue | Negative -> Draw.red
 
 let data_to_list (data : t) =

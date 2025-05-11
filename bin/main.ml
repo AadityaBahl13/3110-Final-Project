@@ -1,6 +1,5 @@
 open Finalproject.Data
 open Finalproject.Lin_alg
-
 open Bogue
 open Cairo
 module W = Widget
@@ -57,7 +56,7 @@ let draw_axes w h renderer =
   Draw.line ~color:axis_color ~x0:0 ~y0:(h / 2) ~x1:w ~y1:(h / 2) renderer;
   Draw.line ~color:axis_color ~x0:(w / 2) ~y0:0 ~x1:(w / 2) ~y1:h renderer
 
-let make_plot_area (table : (key * label) list) =
+let make_plot_area (table : (tensor * label) list) =
   let width, height = (400, 400) in
 
   let widget = Widget.sdl_area ~w:width ~h:height () in
@@ -69,7 +68,7 @@ let make_plot_area (table : (key * label) list) =
 
       List.iter
         (fun (key, label_value) ->
-          match get_key key with
+          match to_list key |> List.hd with
           | x :: y :: _ ->
               let x', y' = transform (x, y) ~w:width ~h:height in
               let color = Draw.set_alpha 255 (color_of_label label_value) in
@@ -89,7 +88,7 @@ let main2 () =
   let file = Sys.argv.(1) in
   try
     let table = read_from_csv file in
-    let table_list = to_list table in
+    let table_list = data_to_list table in
     let layout = make_plot_area table_list in
     let board = Bogue.of_layout layout in
     Bogue.run board
