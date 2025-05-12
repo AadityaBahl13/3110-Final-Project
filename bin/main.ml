@@ -83,10 +83,62 @@ let make_plot_area (table : (tensor * label) list) =
 
 (* ---------- App State ---------- *)
 
-type screen = Title | MainMenu | Plot of (tensor * label) list
+type screen = Title | MainMenu | Train
 
 let current_screen = ref Title
 let previous_screen = ref None
+let current_data = ref ([] : (tensor * label) list)
+
+(* ---------- Screens ---------- *)
+
+let visualize_perceptron () =
+  let width, height = (400, 400) in
+  let widget = W.sdl_area ~w:width ~h:height () in
+  let area = W.get_sdl_area widget in
+
+  let draw_points renderer =
+    draw_axes width height renderer;
+    List.iter
+      (fun (xv, label) ->
+        match to_list xv |> List.hd with
+        | [ x; y ] ->
+            let x', y' = transform (x, y) ~w:width ~h:height in
+            let color = Draw.opaque (color_of_label label) in
+            Draw.circle ~color ~radius:4 ~x:x' ~y:y' renderer
+        | _ -> ())
+      !current_data
+  in
+  Sdl_area.add area draw_points;
+
+  let step_counter = ref 0 in
+  let steps_label = W.label ("Steps: " ^ string_of_int !step_counter) in
+
+  (* let update_plot_and_boundary weights =
+    let draw_boundary renderer =
+      match weights with
+      | w0 :: w1 :: w2 :: _ ->
+          let x1 = -20. in
+          let x2 = 20. in
+          let y1 = -.(w0 +. (w1 *. x1)) /. w2 in
+          let y2 = -.(w0 +. (w1 *. x2)) /. w2 in
+          let x1', y1' =
+            transform (int_of_float x1, int_of_float y1) ~w:width ~h:height
+          in
+          let x2', y2' =
+            transform (int_of_float x2, int_of_float y2) ~w:width ~h:height
+          in
+          let color = Draw.opaque Draw.green in
+          Draw.line ~color ~x0:x1' ~y0:y1' ~x1:x2' ~y1:y2' renderer
+      | _ -> ()
+    in
+    Sdl_area.clear area;
+    Sdl_area.add area draw_points;
+    Sdl_area.add area draw_boundary
+  in *)
+  let train_button =
+    W.button "Start Training" ~action:(fun _ -> print_endline "Start")
+  in
+  L.tower_of_w [ widget; train_button; steps_label ]
 
 let build_screen scr =
   match scr with
@@ -99,7 +151,7 @@ let build_screen scr =
   | MainMenu ->
       let visualize_button =
         Widget.button "Visualize Perceptron" ~action:(fun _ ->
-            print_endline "Perceptron")
+            current_screen := Train)
       in
       let read_data_button =
         Widget.button "Read Data" ~action:(fun _ -> print_endline "Read Data")
@@ -110,7 +162,8 @@ let build_screen scr =
       let label = W.label "Main Menu" in
       Layout.tower_of_w
         [ label; visualize_button; read_data_button; back_button ]
-  | _ -> L.empty ~w:400 ~h:400 ()
+  | Train -> visualize_perceptron ()
+(* | _ -> L.empty ~w:400 ~h:400 () *)
 
 (* ---------- Layout + Update ---------- *)
 
