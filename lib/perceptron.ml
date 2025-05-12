@@ -28,26 +28,26 @@ let predict perceptron x =
   in
   if output >= 0 then positive else negative
 
-let step perceptron data x y =
+let step perceptron x y =
   incr perceptron.steps;
-  if Hashtbl.find (get_data_set data) x <> y then (
+  if Hashtbl.find (get_data_set perceptron.data) x <> y then (
     perceptron.weight :=
       add (get_weight perceptron) (scalar_mul x (int_of_label y));
     perceptron.bias := get_bias perceptron + int_of_label y;
     false)
   else true
 
-let rec train_helper perceptron data data_set =
+let rec train_helper perceptron data_set =
   match data_set with
   | [] -> true
   | (tensor, label) :: t ->
       if !(perceptron.steps) < perceptron.max_step then
-        step perceptron data tensor label && train_helper perceptron data t
+        step perceptron tensor label && train_helper perceptron t
       else true
 
-let rec train_loop perceptron data =
-  let no_error = train_helper perceptron data (data_to_list data) in
+let rec train_loop perceptron =
+  let no_error = train_helper perceptron (data_to_list perceptron.data) in
   if (not no_error) && !(perceptron.steps) < perceptron.max_step then
-    train_loop perceptron data
+    train_loop perceptron
 
-let train perceptron data = train_loop perceptron data
+let train perceptron = train_loop perceptron
