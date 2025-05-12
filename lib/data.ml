@@ -22,7 +22,12 @@ type t = { data_set : (tensor, label) Hashtbl.t; dimension : int ref }
     It is false otherwise. *)
 
 let get_data_set (data : t) = data.data_set
-let get_dimension (data : t) = !(data.dimension)
+(* let get_dimension (data : t) = !(data.dimension) *) 
+
+let get_dimension (data : t) = let dim = !(data.dimension) in  
+  (* DEBUG: print it out *)
+  Printf.printf ">> get_dimension: %d\n%!" dim;
+  dim
 
 let rec check_csv_format loaded_file =
   match loaded_file with

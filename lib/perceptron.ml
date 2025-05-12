@@ -30,6 +30,20 @@ let predict perceptron x =
 
 let step perceptron x y =
   incr perceptron.steps;
+
+
+
+  (* pull out the two matrices and compute their shapes *)
+  let w = get_weight perceptron in
+  let u = scalar_mul x (int_of_label y) in
+  let (wr, wc) = shape w        (* or (rows w, cols w) *)
+  and (ur, uc) = shape u in     (* or (rows u, cols u) *)
+  (* print them *)
+  Printf.printf
+    ">> about to add: weight is %dx%d, update‐matrix is %dx%d\n%!"
+    wr wc ur uc;
+
+
   if Hashtbl.find (get_data_set perceptron.data) x <> y then (
     perceptron.weight :=
       add (get_weight perceptron) (scalar_mul x (int_of_label y));
