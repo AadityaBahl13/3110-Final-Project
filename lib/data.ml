@@ -72,7 +72,7 @@ let read_from_csv file : t =
       if check_csv_format loaded_file then (
         populate_data data loaded_file;
         if loaded_file <> [] then
-          data.dimension := List.length (List.hd loaded_file))
+          data.dimension := List.length (List.hd loaded_file) - 1)
       else
         failwith
           (file
