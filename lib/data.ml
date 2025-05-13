@@ -122,3 +122,20 @@ let data_to_list (data : t) =
   Hashtbl.fold (fun key label acc -> (key, label) :: acc) (get_data_set data) []
 
 let init_data = { data_set = Hashtbl.create 10; dimension = ref 0 }
+
+let filter (data : t) (p : Lin_alg.t -> bool) : t =
+  (* Create a fresh table with the same initial size as the original *)
+  let old_ht = data.data_set in
+  let new_ht = Hashtbl.create (Hashtbl.length old_ht) in
+
+  (* Copy over only those entries whose key satisfies p *)
+  Hashtbl.iter
+    (fun feature_vec label ->
+       if p feature_vec then
+         Hashtbl.add new_ht feature_vec label)
+    old_ht;
+
+  (* Preserve the dimension (all feature‐vectors have the same length) *)
+  { data_set  = new_ht
+  ; dimension = ref !(data.dimension)
+  }
