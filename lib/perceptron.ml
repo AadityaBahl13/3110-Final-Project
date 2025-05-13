@@ -9,7 +9,7 @@ type t = {
   bias : int ref;
 }
 
-let init data_set max_step =
+let init_perceptron data_set max_step =
   {
     data = data_set;
     steps = ref 0;
@@ -28,37 +28,31 @@ let predict perceptron x =
   let b = get_bias perceptron in
 
   (* now compute score (int) *)
-  let score =
-    get (dot (transpose w) x) 0 0
-    + b
-  in
+  let score = get (dot (transpose w) x) 0 0 + b in
 
   if score >= 0 then begin
     positive
-  end else begin
+  end
+  else begin
     negative
   end
 
+let step perceptron x y_true =
+  (* bump our step counter *)
+  incr perceptron.steps;
 
-  let step perceptron x y_true =
-    (* bump our step counter *)
-    incr perceptron.steps;
+  let y_pred = predict perceptron x in
 
-    let y_pred = predict perceptron x in
-  
-    (* grab current weight and compute the update matrix *)
-    let w = get_weight perceptron in
-    let u = Lin_alg.scalar_mul x (Data.int_of_label y_true) in
-  
-  
+  (* grab current weight and compute the update matrix *)
+  let w = get_weight perceptron in
+  let u = Lin_alg.scalar_mul x (Data.int_of_label y_true) in
+
   (* now only update when they differ *)
   if y_true <> y_pred then (
     perceptron.weight := Lin_alg.add w u;
-    perceptron.bias   := get_bias perceptron + Data.int_of_label y_true;
-    false
-  ) else
-    true
-  
+    perceptron.bias := get_bias perceptron + Data.int_of_label y_true;
+    false)
+  else true
 
 let rec train_helper perceptron data_set =
   match data_set with

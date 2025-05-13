@@ -111,7 +111,6 @@ let count_labels data =
       | Negative -> (pos, neg + 1))
     (get_data_set data) (0, 0)
 
-
 let get_key (key : key) : int list = key
 
 let color_of_label = function
@@ -119,7 +118,20 @@ let color_of_label = function
   | Negative -> Draw.red
 
 let data_to_list (data : t) =
-  Hashtbl.fold (fun key label acc -> (key, label) :: acc) (get_data_set data) []
+  Hashtbl.fold
+    (fun key label accumulator -> (key, label) :: accumulator)
+    (get_data_set data) []
+
+let list_to_data_set lst table =
+  match lst with
+  | [] -> ()
+  | (tensor, label) :: t -> Hashtbl.add table tensor label
+
+let list_to_data lst =
+  let table = Hashtbl.create (List.length lst) in
+  list_to_data_set lst table;
+  let dimension = snd (shape (fst (List.hd lst))) in
+  { data_set = table; dimension = ref dimension }
 
 let init_data = { data_set = Hashtbl.create 10; dimension = ref 0 }
 
@@ -131,11 +143,8 @@ let filter (data : t) (p : Lin_alg.t -> bool) : t =
   (* Copy over only those entries whose key satisfies p *)
   Hashtbl.iter
     (fun feature_vec label ->
-       if p feature_vec then
-         Hashtbl.add new_ht feature_vec label)
+      if p feature_vec then Hashtbl.add new_ht feature_vec label)
     old_ht;
 
   (* Preserve the dimension (all feature‐vectors have the same length) *)
-  { data_set  = new_ht
-  ; dimension = ref !(data.dimension)
-  }
+  { data_set = new_ht; dimension = ref !(data.dimension) }

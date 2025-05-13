@@ -27,6 +27,6 @@ val find_split : t -> split
     dimension with the optimal split value to yeild the greatest possible
     reduction in entropy *)
 
-val entropy : t -> split -> float
-(** [entropy tree split] is the entropy of splitting the data in [tree] with
-    function [split] *)
+val entropy : Data.t -> int -> split -> float
+(** [entropy data size split] is the entropy of splitting the data in [data]
+    that has size [size] with function [split] *)
