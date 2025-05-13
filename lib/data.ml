@@ -132,3 +132,19 @@ let list_to_data lst =
   list_to_data_set lst table;
   let dimension = snd (shape (fst (List.hd lst))) in
   { data_set = table; dimension = ref dimension }
+
+let init_data = { data_set = Hashtbl.create 10; dimension = ref 0 }
+
+let filter (data : t) (p : Lin_alg.t -> bool) : t =
+  (* Create a fresh table with the same initial size as the original *)
+  let old_ht = data.data_set in
+  let new_ht = Hashtbl.create (Hashtbl.length old_ht) in
+
+  (* Copy over only those entries whose key satisfies p *)
+  Hashtbl.iter
+    (fun feature_vec label ->
+      if p feature_vec then Hashtbl.add new_ht feature_vec label)
+    old_ht;
+
+  (* Preserve the dimension (all feature‐vectors have the same length) *)
+  { data_set = new_ht; dimension = ref !(data.dimension) }
