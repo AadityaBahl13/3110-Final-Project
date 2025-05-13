@@ -3,13 +3,23 @@ open Lin_alg
 
 type key = int list
 type tensor = Lin_alg.t
-type label = Positive | Negative
+
+type label =
+  | Positive
+  | Negative
 
 let positive = Positive
 let negative = Negative
-let int_of_label label = match label with Positive -> 1 | Negative -> -1
 
-type t = { data_set : (tensor, label) Hashtbl.t; dimension : int ref }
+let int_of_label label =
+  match label with
+  | Positive -> 1
+  | Negative -> -1
+
+type t = {
+  data_set : (tensor, label) Hashtbl.t;
+  dimension : int ref;
+}
 (** AF: [type t] represents a collection of feature vectors and their
     corresponding labels, where the feature vectors serve as the keys of the
     hashtable of [type t] and the labels serve as the values associated with the
@@ -22,8 +32,7 @@ type t = { data_set : (tensor, label) Hashtbl.t; dimension : int ref }
     It is false otherwise. *)
 
 let get_data_set (data : t) = data.data_set
-let get_dimension (data : t) = !(data.dimension) 
-
+let get_dimension (data : t) = !(data.dimension)
 
 let rec check_csv_format loaded_file =
   match loaded_file with
@@ -89,17 +98,25 @@ let read_from_csv file : t =
 
 (* Property-test helpers *)
 let label_to_string (_, label) =
-  match label with Positive -> "P" | Negative -> "N"
+  match label with
+  | Positive -> "P"
+  | Negative -> "N"
 
 (* Count the number of positive and negative labels *)
 let count_labels data =
   Hashtbl.fold
     (fun _ label (pos, neg) ->
-      match label with Positive -> (pos + 1, neg) | Negative -> (pos, neg + 1))
+      match label with
+      | Positive -> (pos + 1, neg)
+      | Negative -> (pos, neg + 1))
     (get_data_set data) (0, 0)
 
-(* let get_key (key: tensor) : int list = to_list key *)
-let color_of_label = function Positive -> Draw.blue | Negative -> Draw.red
+
+let get_key (key : key) : int list = key
+
+let color_of_label = function
+  | Positive -> Draw.blue
+  | Negative -> Draw.red
 
 let data_to_list (data : t) =
   Hashtbl.fold (fun key label acc -> (key, label) :: acc) (get_data_set data) []

@@ -1,6 +1,7 @@
 open Finalproject.Data
 open Finalproject.Lin_alg
 open Finalproject.Perceptron
+
 open Bogue
 open Cairo
 module W = Widget
@@ -41,6 +42,7 @@ let main () =
   with
   | Failure msg -> print_endline ("Error: " ^ msg)
   | _ -> print_endline "An unknown error occurred."
+
 
 (* ---------- Utilities ---------- *)
 (* let transform (x, y) ~w ~h =
@@ -101,6 +103,7 @@ let draw_axes renderer ~w ~h ~data =
   let x0, y0 = transform (0., min_y) in
   let x1, y1 = transform (0., max_y) in
   Draw.line ~color:axis_color ~x0 ~y0 ~x1 ~y1 renderer
+
 
 let make_plot_area (table : (tensor * label) list) =
   let width, height = (400, 400) in
@@ -365,3 +368,4 @@ let make_title_screen () =
    board with | Failure msg -> () | _ -> () *)
 
    let () = main (); main2 () *)
+
