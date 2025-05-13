@@ -28,5 +28,5 @@ val find_split : t -> split
     reduction in entropy *)
 
 val entropy : t -> split -> float
-(** [entropy tree split] is the entropy of splitting the dats in [tree] with
+(** [entropy tree split] is the entropy of splitting the data in [tree] with
     function [split] *)
