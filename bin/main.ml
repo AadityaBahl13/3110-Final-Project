@@ -6,6 +6,10 @@ open Cairo
 module W = Widget
 module L = Layout
 
+let width, height = (400, 400)
+let canvas = W.sdl_area ~w:width ~h:height ()
+let area = W.get_sdl_area canvas
+
 let string_of_list lst =
   List.fold_left (fun acc e -> acc ^ " " ^ string_of_int e) "[" lst ^ " ]"
 
@@ -37,13 +41,6 @@ let main () =
   with
   | Failure msg -> print_endline ("Error: " ^ msg)
   | _ -> print_endline "An unknown error occurred."
-
-(* let () =
-  let hello = Widget.label "Hello world" in
-  let image = Widget.image "data/greekfrog.jpg" in
-  let layout = Layout.tower_of_w [ hello; image ] in
-  let board = Bogue.of_layout layout in
-  Bogue.run board *)
 
 (* ---------- Utilities ---------- *)
 let transform (x, y) ~w ~h =
@@ -83,62 +80,128 @@ let make_plot_area (table : (tensor * label) list) =
 
 (* ---------- App State ---------- *)
 
-type screen = Title | MainMenu | Train
+type screen =
+  | Title
+  | MainMenu
+  | Train
 
 let current_screen = ref Title
 let previous_screen = ref None
 let current_data = ref ([] : (tensor * label) list)
+let current_table = ref init_data
+
+(* --------- Perceptron --------- *)
+let draw_points renderer =
+  draw_axes width height renderer;
+  List.iter
+    (fun (xv, label) ->
+      match to_list xv |> List.hd with
+      | [ x; y ] ->
+          let x', y' = transform (x, y) ~w:width ~h:height in
+          let color = Draw.opaque (color_of_label label) in
+          Draw.circle ~color ~radius:4 ~x:x' ~y:y' renderer
+      | _ -> ())
+    !current_data
+
+let draw_decision_boundary weights renderer =
+  match weights with
+  | w0 :: w1 :: w2 :: _ ->
+      let x1 = -20. in
+      let x2 = 20. in
+      let y1 = -.(w0 +. (w1 *. x1)) /. w2 in
+      let y2 = -.(w0 +. (w1 *. x2)) /. w2 in
+      let x1', y1' =
+        transform (int_of_float x1, int_of_float y1) ~w:width ~h:height
+      in
+      let x2', y2' =
+        transform (int_of_float x2, int_of_float y2) ~w:width ~h:height
+      in
+      let color = Draw.opaque Draw.green in
+      Draw.line ~color ~x0:x1' ~y0:y1' ~x1:x2' ~y1:y2' renderer
+  | _ -> ()
+
+let update_canvas ?weights area () =
+  Sdl_area.clear area;
+  Sdl_area.add area draw_points;
+  Option.iter (fun w -> Sdl_area.add area (draw_decision_boundary w)) weights
+
+let run_training_stepwise steps_label =
+  let perceptron = init !current_table 100 in
+  let steps = ref 0 in
+  let finished = ref false in
+
+  let data_array = Array.of_list (data_to_list !current_table) in
+  let idx = ref 0 in
+
+  let rec step_graph () =
+    if !finished then ()
+    else if !idx >= Array.length data_array then finished := true
+    else
+      let input, label = data_array.(!idx) in
+      incr idx;
+      let updated = step perceptron input label in
+      if not updated then (
+        incr steps;
+        let weights =
+          to_list (get_weight perceptron) |> List.hd |> List.map float_of_int
+        in
+        update_canvas ~weights area ();
+        W.set_text steps_label ("Steps: " ^ string_of_int !steps));
+      ignore (Timeout.add 1 step_graph)
+  in
+  ignore (Timeout.add 1 step_graph)
+
+(* let run_training_final label = *)
+
+let visualize_perceptron () =
+  let steps_label = W.label "Steps: 0" in
+
+  let btn_steps =
+    W.button "Train Step-by-Step" ~action:(fun _ ->
+        run_training_stepwise steps_label)
+  in
+  let btn_final =
+    W.button "Train Fully" ~action:(fun _ -> print_endline "Fully Train")
+  in
+
+  Sdl_area.add area draw_points;
+
+  let layout =
+    L.tower
+      [
+        L.resident canvas;
+        L.flat_of_w [ btn_steps; btn_final ];
+        L.resident steps_label;
+      ]
+  in
+  layout
 
 (* ---------- Screens ---------- *)
 
-let visualize_perceptron () =
-  let width, height = (400, 400) in
-  let widget = W.sdl_area ~w:width ~h:height () in
-  let area = W.get_sdl_area widget in
+(* let visualize_perceptron () = let width, height = (400, 400) in let widget =
+   W.sdl_area ~w:width ~h:height () in let area = W.get_sdl_area widget in
 
-  let draw_points renderer =
-    draw_axes width height renderer;
-    List.iter
-      (fun (xv, label) ->
-        match to_list xv |> List.hd with
-        | [ x; y ] ->
-            let x', y' = transform (x, y) ~w:width ~h:height in
-            let color = Draw.opaque (color_of_label label) in
-            Draw.circle ~color ~radius:4 ~x:x' ~y:y' renderer
-        | _ -> ())
-      !current_data
-  in
-  Sdl_area.add area draw_points;
+   let draw_points renderer = draw_axes width height renderer; List.iter (fun
+   (xv, label) -> match to_list xv |> List.hd with | [ x; y ] -> let x', y' =
+   transform (x, y) ~w:width ~h:height in let color = Draw.opaque
+   (color_of_label label) in Draw.circle ~color ~radius:4 ~x:x' ~y:y' renderer |
+   _ -> ()) !current_data in Sdl_area.add area draw_points;
 
-  let step_counter = ref 0 in
-  let steps_label = W.label ("Steps: " ^ string_of_int !step_counter) in
+   let step_counter = ref 0 in let steps_label = W.label ("Steps: " ^
+   string_of_int !step_counter) in
 
-  (* let update_plot_and_boundary weights =
-    let draw_boundary renderer =
-      match weights with
-      | w0 :: w1 :: w2 :: _ ->
-          let x1 = -20. in
-          let x2 = 20. in
-          let y1 = -.(w0 +. (w1 *. x1)) /. w2 in
-          let y2 = -.(w0 +. (w1 *. x2)) /. w2 in
-          let x1', y1' =
-            transform (int_of_float x1, int_of_float y1) ~w:width ~h:height
-          in
-          let x2', y2' =
-            transform (int_of_float x2, int_of_float y2) ~w:width ~h:height
-          in
-          let color = Draw.opaque Draw.green in
-          Draw.line ~color ~x0:x1' ~y0:y1' ~x1:x2' ~y1:y2' renderer
-      | _ -> ()
-    in
-    Sdl_area.clear area;
-    Sdl_area.add area draw_points;
-    Sdl_area.add area draw_boundary
-  in *)
-  let train_button =
-    W.button "Start Training" ~action:(fun _ -> print_endline "Start")
-  in
-  L.tower_of_w [ widget; train_button; steps_label ]
+   let update_plot_and_boundary weights = let draw_boundary renderer = match
+   weights with | w0 :: w1 :: w2 :: _ -> let x1 = -20. in let x2 = 20. in let y1
+   = -.(w0 +. (w1 *. x1)) /. w2 in let y2 = -.(w0 +. (w1 *. x2)) /. w2 in let
+   x1', y1' = transform (int_of_float x1, int_of_float y1) ~w:width ~h:height in
+   let x2', y2' = transform (int_of_float x2, int_of_float y2) ~w:width
+   ~h:height in let color = Draw.opaque Draw.green in Draw.line ~color ~x0:x1'
+   ~y0:y1' ~x1:x2' ~y1:y2' renderer | _ -> () in Sdl_area.clear area;
+   Sdl_area.add area draw_points; Sdl_area.add area draw_boundary in let
+   train_button = W.button "Start Training" ~action:(fun _ -> let perceptron =
+   init !current_table 1000 in let steps = ref 0 in let _ = train perceptron
+   (fun weights -> steps := !steps + 1; step_counter := !steps W.)) in
+   L.tower_of_w [ widget; train_button; steps_label ] *)
 
 let build_screen scr =
   match scr with
@@ -179,6 +242,16 @@ let update_screen () =
 (* ---------- Entry Point ---------- *)
 
 let () =
+  if Array.length Sys.argv <> 2 then (
+    print_endline ("Usage: " ^ Sys.argv.(0) ^ " <csv_file>");
+    exit 1);
+
+  let file = Sys.argv.(1) in
+  let table = read_from_csv file in
+  let table_list = data_to_list table in
+  current_data := table_list;
+  current_table := table;
+
   (* Set initial layout *)
   let init = build_screen !current_screen in
   L.set_rooms ~sync:false root_layout [ init ];
@@ -203,29 +276,15 @@ let make_title_screen () =
   L.set_height inner_layout 400;
   inner_layout
 
-(* 
-let main2 () =
-  if Array.length Sys.argv <> 2 then (
-    print_endline ("Usage: " ^ Sys.argv.(0) ^ " <csv_file>");
-    exit 1);
-  current_board := Bogue.of_layout (make_title_screen ());
-  Bogue.run !current_board
+(* let main2 () = if Array.length Sys.argv <> 2 then ( print_endline ("Usage: "
+   ^ Sys.argv.(0) ^ " <csv_file>"); exit 1); current_board := Bogue.of_layout
+   (make_title_screen ()); Bogue.run !current_board
 
-(* let file = Sys.argv.(1) in
-  try
-    (* let table = read_from_csv file in *)
-    (* let table_list = data_to_list table in *)
-    (* let layout = make_plot_area table_list in *)
-    let _ = change_screen (make_title_screen ()) in
-    (* let title_layout = make_title_screen () in *)
-    let board = Bogue.of_layout root in
-    Bogue.run
-      ~after_display:(fun () -> change_screen (make_title_screen ()))
-      board
-  with
-  | Failure msg -> ()
-  | _ -> () *)
+   (* let file = Sys.argv.(1) in try (* let table = read_from_csv file in *) (*
+   let table_list = data_to_list table in *) (* let layout = make_plot_area
+   table_list in *) let _ = change_screen (make_title_screen ()) in (* let
+   title_layout = make_title_screen () in *) let board = Bogue.of_layout root in
+   Bogue.run ~after_display:(fun () -> change_screen (make_title_screen ()))
+   board with | Failure msg -> () | _ -> () *)
 
-let () =
-  main ();
-  main2 () *)
+   let () = main (); main2 () *)

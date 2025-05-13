@@ -32,3 +32,5 @@ val label_to_string : tensor * label -> string
 
 val color_of_label : label -> Draw.rgb
 (** [color_of_label label] returns the associated color for each label*)
+
+val init_data : t

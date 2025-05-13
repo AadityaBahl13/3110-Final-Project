@@ -103,3 +103,5 @@ let color_of_label = function Positive -> Draw.blue | Negative -> Draw.red
 
 let data_to_list (data : t) =
   Hashtbl.fold (fun key label acc -> (key, label) :: acc) (get_data_set data) []
+
+let init_data = { data_set = Hashtbl.create 10; dimension = ref 0 }
