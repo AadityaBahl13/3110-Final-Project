@@ -127,11 +127,24 @@ let list_to_data_set lst table =
   | [] -> ()
   | (tensor, label) :: t -> Hashtbl.add table tensor label
 
+(** Create an empty Data.t *)
+let empty () : t =
+  { data_set = Hashtbl.create 0
+  ; dimension = ref 0
+  }
+
 let list_to_data lst =
-  let table = Hashtbl.create (List.length lst) in
-  list_to_data_set lst table;
-  let dimension = snd (shape (fst (List.hd lst))) in
-  { data_set = table; dimension = ref dimension }
+  match lst with
+  | [] ->
+      empty ()
+  | (x,_)::_ ->
+      let table = Hashtbl.create (List.length lst) in
+      list_to_data_set lst table;
+      (* dimension is number of columns in the first tensor *)
+      let _rows, cols = shape x in
+      { data_set = table
+      ; dimension = ref cols
+      }
 
 let init_data = { data_set = Hashtbl.create 10; dimension = ref 0 }
 

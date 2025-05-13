@@ -22,57 +22,63 @@ let tup_sum t = fst t + snd t
 let slack = 1e-6
 
 let rec init_decision_tree data_set max_splits =
-  let data_size = tup_sum (count_labels data_set) in
-  Tree
-    {
-      data = data_set;
-      split = ref default_split;
+  (* count_labels : Data.t -> int * int *)
+  let pos_count, neg_count = Data.count_labels data_set in
+  let data_size = tup_sum (pos_count, neg_count) in
+  (* BASE CASE: no splits left or trivial dataset *)
+  if max_splits <= 0 || data_size <= 1 || pos_count = 0 || neg_count = 0 then
+    let label = if pos_count >= neg_count then positive else negative in
+    Leaf label
+  else
+    let e = entropy data_set data_size default_split in
+    Tree {
+      data      = data_set;
+      split     = ref default_split;
       data_size;
-      entropy = entropy data_set data_size default_split;
+      entropy   = e;
       max_splits;
-      left = ref (Leaf positive);
-      right = ref (Leaf negative);
+      left      = ref (Leaf positive);
+      right     = ref (Leaf negative);
     }
 
 and count_tree_labels tree =
   match tree with
-  | Leaf y -> (0, 0)
-  | Tree t -> count_labels t.data
+  | Leaf _    -> (0, 0)
+  | Tree node -> Data.count_labels node.data
 
 and entropy (all_data : Data.t) data_size (splt : split) : float =
-  (* 1) carve out the two subsets without touching node.left/right *)
-  let left_data = Data.filter all_data splt in
-  let right_data = Data.filter all_data (fun x -> not (splt x)) in
+  (* SHORT‐CIRCUIT trivial cases *)
+  if data_size <= 1 then 0.0
+  else
+    (* 1) Partition the data *)
+    let left_data  = Data.filter all_data splt in
+    let right_data = Data.filter all_data (fun x -> not (splt x)) in
 
-  (* 2) wrap them in throwaway trees so we can count labels *)
-  let left_tree = init_decision_tree left_data 0 in
-  let right_tree = init_decision_tree right_data 0 in
+    (* 2) Directly count labels—no more recursive init! *)
+    let pos_l, neg_l = Data.count_labels left_data in
+    let pos_r, neg_r = Data.count_labels right_data in
 
-  (* 3) pull out (#pos, #neg) from each side *)
-  let pos_l, neg_l = count_tree_labels left_tree in
-  let pos_r, neg_r = count_tree_labels right_tree in
+    (* 3) Convert to floats *)
+    let n_l   = float_of_int (pos_l + neg_l)
+    and n_r   = float_of_int (pos_r + neg_r)
+    and n_tot = float_of_int data_size in
 
-  (* convert to floats and total *)
-  let n_l = float_of_int (pos_l + neg_l)
-  and n_r = float_of_int (pos_r + neg_r)
-  and n_tot = float_of_int data_size in
-
-  (* helper: H(p_pos,p_neg) = –p_pos log p_pos – p_neg log p_neg *)
-  let binary_entropy pos neg =
-    let s = float_of_int (pos + neg) in
-    if s = 0. then 0.
-    else
-      let p_pos = float_of_int pos /. s in
-      let p_neg = float_of_int neg /. s in
-      let term p = if p <= 0. then 0. else -.p *. log p in
+    (* 4) Binary entropy helper with a tiny epsilon guard *)
+    let binary_entropy pos neg =
+      let s = float_of_int (pos + neg) in
+      if s <= slack then 0.0 else
+      let p_pos = float_of_int pos /. s
+      and p_neg = float_of_int neg /. s in
+      let term p = if p <= slack then 0.0 else -.p *. log p in
       term p_pos +. term p_neg
-  in
+    in
 
-  let hL = binary_entropy pos_l neg_l in
-  let hR = binary_entropy pos_r neg_r in
+    let hL = binary_entropy pos_l neg_l in
+    let hR = binary_entropy pos_r neg_r in
 
-  (* 4) weighted average: (|L|/|T|)·H(L) + (|R|/|T|)·H(R) *)
-  if n_tot = 0. then 0. else (n_l /. n_tot *. hL) +. (n_r /. n_tot *. hR)
+    (* 5) Weighted sum *)
+    (n_l /. n_tot *. hL) +. (n_r /. n_tot *. hR)
+
 
 let rec predict t label =
   match t with
@@ -83,7 +89,7 @@ let rec predict t label =
       else predict !(tree.left) label
     end
 
-let split_data_helper l_list r_list (data : (tensor * label) list)
+(* let split_data_helper l_list r_list (data : (tensor * label) list)
     (split : split) =
   match data with
   | [] -> ()
@@ -91,7 +97,7 @@ let split_data_helper l_list r_list (data : (tensor * label) list)
       let left_or_right = split tensor in
       if left_or_right then r_list := (tensor, label) :: !r_list
       else l_list := (tensor, label) :: !l_list
-    end
+    end *)
 
 let split_data data split =
   let l_data_list = ref [] in
