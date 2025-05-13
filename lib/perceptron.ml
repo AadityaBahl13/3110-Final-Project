@@ -28,7 +28,8 @@ let predict perceptron x =
   let b = get_bias perceptron in
 
   (* now compute score (int) *)
-  let score = get (dot (transpose w) x) 0 0 + b in
+  let dotted = dot w (transpose x) in
+  let score = get dotted 0 0 + b in
 
   if score >= 0 then begin
     positive
@@ -54,17 +55,30 @@ let step perceptron x y_true =
     false)
   else true
 
+let rec check_perceptron_helper perceptron data_set =
+  match data_set with
+  | [] -> true
+  | (tensor, label) :: t ->
+      if predict perceptron tensor = label then
+        check_perceptron_helper perceptron t
+      else false
+
+let rec check_perceptron perceptron =
+  check_perceptron_helper perceptron (data_to_list perceptron.data)
+
 let rec train_helper perceptron data_set =
   match data_set with
   | [] -> true
   | (tensor, label) :: t ->
       if !(perceptron.steps) < perceptron.max_step then
-        step perceptron tensor label && train_helper perceptron t
+        let step_result = step perceptron tensor label in
+        let train_result = train_helper perceptron t in
+        step_result && train_result
       else true
 
-let rec train_loop perceptron =
-  let no_error = train_helper perceptron (data_to_list perceptron.data) in
+let rec train_loop perceptron data_list =
+  let no_error = train_helper perceptron data_list in
   if (not no_error) && !(perceptron.steps) < perceptron.max_step then
-    train_loop perceptron
+    train_loop perceptron data_list
 
-let train perceptron = train_loop perceptron
+let train perceptron = train_loop perceptron (data_to_list perceptron.data)

@@ -211,7 +211,8 @@ let run_training_stepwise steps_label =
 
   let rec step_graph () =
     if !finished then ignore (W.set_text steps_label "Done!")
-    else if !idx >= Array.length data_array then finished := true
+    else if !idx >= Array.length data_array then
+      if check_perceptron perceptron then finished := true else idx := 0
     else
       let input, label = data_array.(!idx) in
       incr idx;
@@ -225,10 +226,11 @@ let run_training_stepwise steps_label =
         List.iteri
           (fun i w ->
             print_endline
-              ("Weight(step) " ^ string_of_int i ^ ": " ^ string_of_float w))
+              ("Weight (step " ^ string_of_int !steps ^ ") [" ^ string_of_int i
+             ^ "]: " ^ string_of_float w))
           weights;
         update_canvas ~weights (get_bias perceptron) area ());
-      ignore (Timeout.add 5 step_graph)
+      ignore (Timeout.add 1000 step_graph)
   in
   ignore (Timeout.add 2 step_graph)
 
@@ -245,6 +247,7 @@ let run_training_final steps_label =
             print_endline
               ("Weight(final) " ^ string_of_int i ^ ": " ^ string_of_int w))
           hd;
+        print_endline ("Bias: " ^ string_of_int (get_bias perceptron));
         List.map float_of_int
           hd (* Adjust this depending on your perceptron's weight structure *)
   in
