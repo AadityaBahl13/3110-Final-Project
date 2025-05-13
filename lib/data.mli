@@ -24,6 +24,7 @@ val count_labels : t -> int * int
 val data_to_list : t -> (tensor * label) list
 (** [to_list t] converts the contents of [t] to a list *)
 
+val list_to_data : (tensor * label) list -> t
 val get_dimension : t -> int
 val get_data_set : t -> (tensor, label) Hashtbl.t
 
