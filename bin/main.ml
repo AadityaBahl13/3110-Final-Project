@@ -5,7 +5,7 @@ open Bogue
 open Cairo
 module W = Widget
 module L = Layout
-(*
+
 let string_of_list lst =
   List.fold_left (fun acc e -> acc ^ " " ^ string_of_int e) "[" lst ^ " ]"
 
@@ -100,4 +100,4 @@ let main2 () =
 let () =
   main ();
   main2 ()
-  *)
+  
