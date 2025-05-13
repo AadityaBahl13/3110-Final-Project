@@ -23,31 +23,54 @@ let get_weight perceptron = !(perceptron.weight)
 let get_bias perceptron = !(perceptron.bias)
 
 let predict perceptron x =
-  let output =
-    get (dot (transpose (get_weight perceptron)) x) 0 0 + get_bias perceptron
+  (* fetch current w, b *)
+  let w = get_weight perceptron in
+  let b = get_bias perceptron in
+
+  (* now compute score (int) *)
+  let score =
+    get (dot (transpose w) x) 0 0
+    + b
   in
-  if output >= 0 then positive else negative
 
-let step perceptron data x y =
-  incr perceptron.steps;
-  if Hashtbl.find (get_data_set data) x <> y then (
-    perceptron.weight :=
-      add (get_weight perceptron) (scalar_mul x (int_of_label y));
-    perceptron.bias := get_bias perceptron + int_of_label y;
-    false)
-  else true
+  if score >= 0 then begin
+    positive
+  end else begin
+    negative
+  end
 
-let rec train_helper perceptron data data_set =
+
+  let step perceptron x y_true =
+    (* bump our step counter *)
+    incr perceptron.steps;
+
+    let y_pred = predict perceptron x in
+  
+    (* grab current weight and compute the update matrix *)
+    let w = get_weight perceptron in
+    let u = Lin_alg.scalar_mul x (Data.int_of_label y_true) in
+  
+  
+  (* now only update when they differ *)
+  if y_true <> y_pred then (
+    perceptron.weight := Lin_alg.add w u;
+    perceptron.bias   := get_bias perceptron + Data.int_of_label y_true;
+    false
+  ) else
+    true
+  
+
+let rec train_helper perceptron data_set =
   match data_set with
   | [] -> true
   | (tensor, label) :: t ->
       if !(perceptron.steps) < perceptron.max_step then
-        step perceptron data tensor label && train_helper perceptron data t
+        step perceptron tensor label && train_helper perceptron t
       else true
 
-let rec train_loop perceptron data =
-  let no_error = train_helper perceptron data (data_to_list data) in
+let rec train_loop perceptron =
+  let no_error = train_helper perceptron (data_to_list perceptron.data) in
   if (not no_error) && !(perceptron.steps) < perceptron.max_step then
-    train_loop perceptron data
+    train_loop perceptron
 
-let train perceptron data = train_loop perceptron data
+let train perceptron = train_loop perceptron

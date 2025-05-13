@@ -22,7 +22,8 @@ type t = { data_set : (tensor, label) Hashtbl.t; dimension : int ref }
     It is false otherwise. *)
 
 let get_data_set (data : t) = data.data_set
-let get_dimension (data : t) = !(data.dimension)
+let get_dimension (data : t) = !(data.dimension) 
+
 
 let rec check_csv_format loaded_file =
   match loaded_file with
@@ -72,7 +73,7 @@ let read_from_csv file : t =
       if check_csv_format loaded_file then (
         populate_data data loaded_file;
         if loaded_file <> [] then
-          data.dimension := List.length (List.hd loaded_file))
+          data.dimension := List.length (List.hd loaded_file) - 1)
       else
         failwith
           (file

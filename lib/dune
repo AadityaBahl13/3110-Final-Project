@@ -1,5 +1,6 @@
 (library
  (name finalproject)
+  (public_name finalproject)
  (libraries csv bogue)
  (instrumentation 
   (backend bisect_ppx)))
