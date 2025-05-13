@@ -96,9 +96,8 @@ let perceptron_train_test =
 
 (*------------------------------------------------------------------*)
 let tests = [ 
-   perceptron_init_test;
-   perceptron_step_correct_test;
-   perceptron_step_incorrect_test;
+   perceptron_train_test;
+
 ]
 
 
