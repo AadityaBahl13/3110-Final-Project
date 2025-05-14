@@ -32,6 +32,26 @@ let get_oracle lst =
   let t_shape = shape tensor in
   check_get tensor lst t_shape (ref 0)
 
+let rec check_scalar_mul tensor lst t_shape count c =
+  try
+    for i = 0 to fst t_shape - 1 do
+      for j = 0 to snd t_shape - 1 do
+        if get tensor i j <> List.nth lst !count * c then failwith "false";
+        incr count
+      done
+    done;
+    true
+  with Failure x -> false
+
+let scalar_mul_oracle lst =
+  let columns = Random.int_in_range ~min:0 ~max:10 in
+  let c = Random.int_in_range ~min:(-10) ~max:10 in
+  let matrix = make_matrix lst [] columns in
+  let tensor = create matrix in
+  let t_shape = shape tensor in
+  let mul_matrix = scalar_mul tensor c in
+  check_scalar_mul mul_matrix lst t_shape (ref 0) c
+
 let transpose_oracle lst =
   let columns = Random.int_in_range ~min:1 ~max:10 in
   let matrix = make_matrix lst [] columns in
@@ -42,7 +62,9 @@ let rec lst_equality lst1 lst2 =
   match lst1 with
   | [] -> lst2 = []
   | h1 :: t1 -> (
-      match lst2 with [] -> false | h2 :: t2 -> h1 = h2 && lst_equality t1 t2)
+      match lst2 with
+      | [] -> false
+      | h2 :: t2 -> h1 = h2 && lst_equality t1 t2)
 
 let rec lst_lst_equality lstlst1 lstlst2 =
   match lstlst1 with
@@ -207,6 +229,7 @@ let tests =
     make_single_matrix_test sum_axis_none_oracle 100 "sum_axis_none";
     make_single_matrix_test sum_axis0_oracle 100 "sum_axis0";
     make_single_matrix_test sum_axis1_oracle 100 "sum_axis1";
+    make_single_matrix_test scalar_mul_oracle 100 "scalar_mul";
     add_0x0_test;
     (let r, c =
        (Random.int_in_range ~min:1 ~max:10, Random.int_in_range ~min:1 ~max:10)
