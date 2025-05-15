@@ -76,8 +76,8 @@ let perceptron_predict_test =
 (* 5) train converges on two‐point separable dataset *)
 let perceptron_train_test =
   "Perceptron.train" >:: fun _ ->
-  let data = read_from_csv "../data/test_data_train.csv" in
-  let p = init_perceptron data 10 in
+  let data = read_from_csv "../data/valid_linear.csv" in
+  let p = init_perceptron data 100 in
   train p;
   List.iter
     (fun (x, lbl) ->
@@ -87,4 +87,11 @@ let perceptron_train_test =
     (data_to_list data)
 
 (*------------------------------------------------------------------*)
-let tests = [ perceptron_train_test ]
+let tests =
+  [
+    perceptron_train_test;
+    perceptron_predict_test;
+    perceptron_init_test;
+    perceptron_step_correct_test;
+    perceptron_step_incorrect_test;
+  ]

@@ -1,6 +1,7 @@
 open Finalproject.Data
 open Finalproject.Lin_alg
 open Finalproject.Perceptron
+open Finalproject.Decision_tree
 open Bogue
 open Cairo
 module W = Widget
@@ -194,12 +195,104 @@ let draw_decision_boundary weights bias renderer =
       Draw.line ~color ~x0:px1 ~y0:py1 ~x1:px2 ~y1:py2 renderer
   | _ -> ()
 
+let rec draw_dt_helper (dt : Finalproject.Decision_tree.t) renderer trans
+    x_stack y_stack scale =
+  match dt with
+  | Leaf y -> ()
+  | Tree t -> begin
+      let draw, y1, y2 =
+        match (get_left t, get_right t) with
+        | Leaf y1, Leaf y2 -> (true, y1, y2)
+        | _ -> (false, positive, negative)
+      in
+      if draw then (
+        let l_color =
+          if y1 = positive then Draw.transp Draw.blue else Draw.transp Draw.red
+        in
+        let r_color =
+          if y2 = positive then Draw.transp Draw.blue else Draw.transp Draw.red
+        in
+        let x_min, x_max = Stack.pop x_stack in
+        let y_min, y_max = Stack.pop y_stack in
+        let s_dim, s_val = get_split_dim_and_val t in
+        let xl_min, yl_min, wl, hl, xr_min, yr_min, wr, hr =
+          if s_dim = 0 then
+            ( x_min,
+              y_min,
+              s_val - x_min,
+              y_max - y_min,
+              s_val,
+              y_min,
+              x_max - s_val,
+              y_max - y_min )
+          else
+            ( x_min,
+              y_min,
+              x_max - x_min,
+              s_val - y_min,
+              x_min,
+              s_val,
+              x_max - x_min,
+              y_max - s_val )
+        in
+        let xl_min_t, yl_min_t =
+          trans (float_of_int xl_min, float_of_int yl_min)
+        in
+        let xr_min_t, yr_min_t =
+          trans (float_of_int xr_min, float_of_int yr_min)
+        in
+        Draw.rectangle renderer ~color:l_color ~w:(wl * scale) ~h:(hl * scale)
+          ~x:xl_min_t
+          ~y:(yl_min_t - (hl * scale));
+        Draw.rectangle renderer ~color:r_color ~w:(scale * wr) ~h:(scale * hr)
+          ~x:xr_min_t
+          ~y:(yr_min_t - (hr * scale)))
+      else
+        let s_dim, s_val = get_split_dim_and_val t in
+        let x_min, x_max = Stack.top x_stack in
+        let y_min, y_max = Stack.top y_stack in
+        if s_dim = 0 then (
+          Stack.push (x_min, s_val) x_stack;
+          Stack.push (y_min, y_max) y_stack;
+          draw_dt_helper (get_left t) renderer trans x_stack y_stack scale;
+          Stack.push (s_val, x_max) x_stack;
+          Stack.push (y_min, y_max) y_stack;
+          draw_dt_helper (get_right t) renderer trans x_stack y_stack scale)
+        else (
+          Stack.push (x_min, x_max) x_stack;
+          Stack.push (y_min, s_val) y_stack;
+          draw_dt_helper (get_left t) renderer trans x_stack y_stack scale;
+          Stack.push (x_min, x_max) x_stack;
+          Stack.push (s_val, y_max) y_stack;
+          draw_dt_helper (get_right t) renderer trans x_stack y_stack scale)
+    end
+
+let draw_dt dt renderer =
+  let transform = create_transform ~w:width ~h:height !current_data in
+  let min_x, max_x, min_y, max_y = get_data_bounds !current_data in
+  let data_width = max_x -. min_x in
+  let data_height = max_y -. min_y in
+  let margin = 50. in
+  let scale_x = (float_of_int width -. (2. *. margin)) /. data_width in
+  let scale_y = (float_of_int height -. (2. *. margin)) /. data_height in
+  let scale = int_of_float (Float.min scale_x scale_y) in
+  let x_bound_stack = Stack.create () in
+  Stack.push (int_of_float min_x, int_of_float max_x) x_bound_stack;
+  let y_bound_stack = Stack.create () in
+  Stack.push (int_of_float min_y, int_of_float max_y) y_bound_stack;
+  draw_dt_helper dt renderer transform x_bound_stack y_bound_stack scale
+
 let update_canvas ?weights bias area () =
   Sdl_area.clear area;
   Sdl_area.add area draw_points;
   Option.iter
     (fun w -> Sdl_area.add area (draw_decision_boundary w bias))
     weights
+
+let update_canvas_dt dt area () =
+  Sdl_area.clear area;
+  Sdl_area.add area draw_points;
+  Sdl_area.add area (draw_dt dt)
 
 let run_training_stepwise steps_label =
   let perceptron = init_perceptron !current_table 100 in
@@ -236,7 +329,7 @@ let run_training_stepwise steps_label =
 
 let run_training_final steps_label =
   let perceptron = init_perceptron !current_table 100 in
-  train perceptron;
+  Finalproject.Perceptron.train perceptron;
   let weights =
     let w = to_list (get_weight perceptron) in
     match w with
@@ -252,6 +345,12 @@ let run_training_final steps_label =
           hd (* Adjust this depending on your perceptron's weight structure *)
   in
   update_canvas ~weights (get_bias perceptron) area ();
+  W.set_text steps_label "Final result"
+
+let run_training_final_dt steps_label =
+  let dt = init_decision_tree !current_table 100 in
+  Finalproject.Decision_tree.train dt;
+  update_canvas_dt dt area ();
   W.set_text steps_label "Final result"
 
 let visualize_perceptron () =
@@ -281,6 +380,29 @@ let visualize_perceptron () =
   in
   layout
 
+let visualize_decision_tree () =
+  let steps_label = W.label "Max Depth: 0" in
+
+  let btn_final =
+    W.button "Train" ~action:(fun _ -> run_training_final_dt steps_label)
+  in
+
+  let btn_back =
+    W.button "Back To Main" ~action:(fun _ -> current_screen := MainMenu)
+  in
+
+  Sdl_area.add area draw_points;
+
+  let layout =
+    L.tower
+      [
+        L.resident canvas;
+        L.flat_of_w [ btn_final; btn_back ];
+        L.resident steps_label;
+      ]
+  in
+  layout
+
 (* ---------- Screens ---------- *)
 
 let build_screen scr =
@@ -305,7 +427,9 @@ let build_screen scr =
       let label = W.label "Main Menu" in
       Layout.tower_of_w
         [ label; visualize_button; read_data_button; back_button ]
-  | Train -> visualize_perceptron ()
+  | Train ->
+      if Sys.argv.(2) = "perceptron" then visualize_perceptron ()
+      else visualize_decision_tree ()
 (* | _ -> L.empty ~w:400 ~h:400 () *)
 
 (* ---------- Layout + Update ---------- *)
@@ -322,7 +446,7 @@ let update_screen () =
 (* ---------- Entry Point ---------- *)
 
 let () =
-  if Array.length Sys.argv <> 2 then (
+  if Array.length Sys.argv < 2 then (
     print_endline ("Usage: " ^ Sys.argv.(0) ^ " <csv_file>");
     exit 1);
 

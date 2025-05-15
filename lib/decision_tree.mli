@@ -1,7 +1,11 @@
-type t
-(** [type t] is a decision tree that predicts a binary label for a given piece
-    of data based on a series of splits for specific values along the various
-    dimensions of the training data *)
+type tree
+
+type t =
+  | Leaf of Data.label
+  | Tree of tree
+      (** [type t] is a decision tree that predicts a binary label for a given
+          piece of data based on a series of splits for specific values along
+          the various dimensions of the training data *)
 
 type split = Lin_alg.t -> bool
 (** [type split] is a function that splits a piece of data based on the value it
@@ -22,7 +26,7 @@ val predict : t -> Lin_alg.t -> Data.label
 val split : t -> unit
 (** [split tree] updates [tree] so that it splits the data optimally *)
 
-val find_split : t -> split
+val find_split : t -> split * int option * int option
 (** [find_split tree] is the function that splits the data along the optimal
     dimension with the optimal split value to yeild the greatest possible
     reduction in entropy *)
@@ -30,3 +34,7 @@ val find_split : t -> split
 val entropy : Data.t -> int -> split -> float
 (** [entropy data size split] is the entropy of splitting the data in [data]
     that has size [size] with function [split] *)
+
+val get_left : tree -> t
+val get_right : tree -> t
+val get_split_dim_and_val : tree -> int * int
