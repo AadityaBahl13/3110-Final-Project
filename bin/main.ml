@@ -200,12 +200,14 @@ let rec draw_dt_helper (dt : Finalproject.Decision_tree.t) renderer trans
   match dt with
   | Leaf y -> ()
   | Tree t -> begin
-      let draw, y1, y2 =
+      let draw1, draw2, y1, y2 =
         match (get_left t, get_right t) with
-        | Leaf y1, Leaf y2 -> (true, y1, y2)
-        | _ -> (false, positive, negative)
+        | Leaf y1, Leaf y2 -> (true, true, y1, y2)
+        | Leaf y1, _ -> (true, false, y1, negative)
+        | _, Leaf y2 -> (false, true, positive, y2)
+        | _ -> (false, false, positive, negative)
       in
-      if draw then (
+      if draw1 || draw2 then (
         let l_color =
           if y1 = positive then Draw.transp Draw.blue else Draw.transp Draw.red
         in
@@ -241,21 +243,49 @@ let rec draw_dt_helper (dt : Finalproject.Decision_tree.t) renderer trans
         let xr_min_t, yr_min_t =
           trans (float_of_int xr_min, float_of_int yr_min)
         in
-        Draw.rectangle renderer ~color:l_color ~w:(wl * scale) ~h:(hl * scale)
-          ~x:xl_min_t
-          ~y:(yl_min_t - (hl * scale));
-        Draw.rectangle renderer ~color:r_color ~w:(scale * wr) ~h:(scale * hr)
-          ~x:xr_min_t
-          ~y:(yr_min_t - (hr * scale)))
+
+        if draw1 then (
+          Printf.printf "Drawing at: (%d, %d)\n%!" xl_min_t
+            (yl_min_t - (hl * scale));
+          Draw.rectangle renderer ~color:l_color ~w:(wl * scale) ~h:(hl * scale)
+            ~x:xl_min_t
+            ~y:(yl_min_t - (hl * scale)))
+        else if s_dim = 0 then (
+          Stack.push (x_min, s_val) x_stack;
+          Printf.printf "Pushing: (%d, %d)\n%!" x_min s_val;
+          Stack.push (y_min, y_max) y_stack;
+          draw_dt_helper (get_left t) renderer trans x_stack y_stack scale)
+        else (
+          Stack.push (x_min, x_max) x_stack;
+          Stack.push (y_min, s_val) y_stack;
+          draw_dt_helper (get_left t) renderer trans x_stack y_stack scale);
+
+        if draw2 then (
+          Printf.printf "Drawing at: (%d, %d)\n%!" xr_min_t
+            (yr_min_t - (hr * scale));
+          Draw.rectangle renderer ~color:r_color ~w:(scale * wr) ~h:(scale * hr)
+            ~x:xr_min_t
+            ~y:(yr_min_t - (hr * scale)))
+        else if s_dim = 0 then (
+          Stack.push (s_val, x_max) x_stack;
+          Printf.printf "Pushing: (%d, %d)\n%!" s_val x_max;
+          Stack.push (y_min, y_max) y_stack;
+          draw_dt_helper (get_right t) renderer trans x_stack y_stack scale)
+        else (
+          Stack.push (x_min, x_max) x_stack;
+          Stack.push (s_val, y_max) y_stack;
+          draw_dt_helper (get_right t) renderer trans x_stack y_stack scale))
       else
         let s_dim, s_val = get_split_dim_and_val t in
         let x_min, x_max = Stack.top x_stack in
         let y_min, y_max = Stack.top y_stack in
         if s_dim = 0 then (
           Stack.push (x_min, s_val) x_stack;
+          Printf.printf "Pushing: (%d, %d)\n%!" x_min s_val;
           Stack.push (y_min, y_max) y_stack;
           draw_dt_helper (get_left t) renderer trans x_stack y_stack scale;
           Stack.push (s_val, x_max) x_stack;
+          Printf.printf "Pushing: (%d, %d)\n%!" s_val x_max;
           Stack.push (y_min, y_max) y_stack;
           draw_dt_helper (get_right t) renderer trans x_stack y_stack scale)
         else (
@@ -348,7 +378,7 @@ let run_training_final steps_label =
   W.set_text steps_label "Final result"
 
 let run_training_final_dt steps_label =
-  let dt = init_decision_tree !current_table 100 in
+  let dt = init_decision_tree !current_table 50 in
   Finalproject.Decision_tree.train dt;
   update_canvas_dt dt area ();
   W.set_text steps_label "Final result"
