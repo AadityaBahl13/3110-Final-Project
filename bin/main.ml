@@ -134,6 +134,7 @@ type screen =
   | Title
   | MainMenu
   | Train
+  | DT
 
 let current_screen = ref Title
 let previous_screen = ref None
@@ -358,7 +359,7 @@ let run_training_stepwise steps_label =
   step_idx := 0;
   steps_taken := 0;
   step_finished := false;
-  W.set_text steps_label "Steps: 0";
+  W.set_text steps_label "Steps: 0      ";
   update_canvas ~weights:([] : float list) 0 area () (* Clear previous line *)
 
 (* Perform one training step manually *)
@@ -381,7 +382,8 @@ let do_step steps_label =
         let weights =
           to_list (get_weight perceptron) |> List.hd |> List.map float_of_int
         in
-        W.set_text steps_label ("Steps: " ^ string_of_int !steps_taken);
+        W.set_text steps_label
+          ("Steps: " ^ string_of_int !steps_taken ^ "      ");
         update_canvas ~weights (get_bias perceptron) area ();
         if not updated then
           List.iteri
@@ -418,11 +420,10 @@ let run_training_final_dt steps_label =
 
 let visualize_perceptron () =
   let steps_label = W.label "Steps: 0" in
-  let btn_next = W.button "" ~action:(fun _ -> do_step steps_label) in
+  let btn_next = W.button "Next Step" ~action:(fun _ -> do_step steps_label) in
   let btn_steps =
     W.button "Train Step-by-Step" ~action:(fun _ ->
-        run_training_stepwise steps_label;
-        W.set_text btn_next "Next Step")
+        run_training_stepwise steps_label)
   in
   let btn_final =
     W.button "Train Fully" ~action:(fun _ -> run_training_final steps_label)
@@ -439,7 +440,7 @@ let visualize_perceptron () =
       [
         L.resident canvas;
         L.flat_of_w [ btn_steps; btn_final; btn_back ];
-        L.flat_of_w [ steps_label; btn_next ];
+        L.flat_of_w ~sep:10 [ steps_label; btn_next ];
       ]
   in
   layout
@@ -472,18 +473,22 @@ let visualize_decision_tree () =
 let build_screen scr =
   match scr with
   | Title ->
-      let title_label = W.label "OCAML Final Project" in
+      let title_label = W.label "Our Crack At Machine Learning (OCAML)" in
+      let sub_title =
+        W.label "Pattern Matchers: Aaditya Bahl, Danielle Imogu, Jonah Benard"
+      in
       let start_btn =
         W.button "Start" ~action:(fun _ -> current_screen := MainMenu)
       in
-      L.tower_of_w ~w:400 [ title_label; start_btn ]
+      L.tower_of_w ~w:400 [ title_label; sub_title; start_btn ]
   | MainMenu ->
       let visualize_button =
         Widget.button "Visualize Perceptron" ~action:(fun _ ->
             current_screen := Train)
       in
       let read_data_button =
-        Widget.button "Read Data" ~action:(fun _ -> print_endline "Read Data")
+        Widget.button "Visualize Decision Tree" ~action:(fun _ ->
+            current_screen := DT)
       in
       let back_button =
         Widget.button "Back" ~action:(fun _ -> current_screen := Title)
@@ -491,14 +496,15 @@ let build_screen scr =
       let label = W.label "Main Menu" in
       Layout.tower_of_w
         [ label; visualize_button; read_data_button; back_button ]
-  | Train ->
-      if Sys.argv.(2) = "perceptron" then visualize_perceptron ()
-      else visualize_decision_tree ()
+  | Train -> visualize_perceptron ()
+  (* if Sys.argv.(2) = "perceptron" then visualize_perceptron () else
+     visualize_decision_tree () *)
+  | DT -> visualize_decision_tree ()
 (* | _ -> L.empty ~w:400 ~h:400 () *)
 
 (* ---------- Layout + Update ---------- *)
 
-let root_layout = L.empty ~w:400 ~h:400 ~name:"Main Layout" ()
+let root_layout = L.empty ~w:400 ~h:400 ~name:"Our Crack At Machine Learning" ()
 
 let update_screen () =
   if Some !current_screen <> !previous_screen then (
