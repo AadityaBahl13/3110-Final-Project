@@ -138,6 +138,11 @@ let current_screen = ref Title
 let previous_screen = ref None
 let current_data = ref ([] : (tensor * label) list)
 let current_table = ref init_data
+let step_idx = ref 0
+let current_perceptron = ref None
+let steps_taken = ref 0
+let step_finished = ref false
+let step_amount = ref 1
 
 (* --------- Perceptron --------- *)
 (* let draw_points renderer =
@@ -170,12 +175,30 @@ let draw_points renderer =
   Draw.circle ~color:(Draw.opaque Draw.green) ~radius:3 ~x:cx ~y:cy renderer
 
 let compute_decision_boundary_points w1 w2 b min_x max_x =
-  let y x = -.((w1 *. x) +. b) /. w2 in
-  let x1 = min_x in
-  let y1 = y x1 in
-  let x2 = max_x in
-  let y2 = y x2 in
-  ((x1, y1), (x2, y2))
+  if w2 = 0. then
+    let x = -.b /. w1 in
+    ((x, min_x), (x, max_x))
+  else
+    let y x = -.((w1 *. x) +. b) /. w2 in
+    let x1 = min_x in
+    let y1 = y x1 in
+    let x2 = max_x in
+    let y2 = y x2 in
+    ((x1, y1), (x2, y2))
+
+let draw_weight_vector w1 w2 renderer =
+  (* Draw weight vector as a line starting from origin (0, 0) *)
+  let color = Draw.opaque Draw.red in
+  let x0, y0 = (0., 0.) in
+  (* starting point *)
+  let x1, y1 = (w1, w2) in
+  (* direction from origin *)
+
+  let transform = create_transform ~w:width ~h:height !current_data in
+  let px0, py0 = transform (x0, y0) in
+  let px1, py1 = transform (x1, y1) in
+
+  Draw.line ~color ~x0:px0 ~y0:py0 ~x1:px1 ~y1:py1 renderer
 
 let draw_decision_boundary weights bias renderer =
   let b = float_of_int bias in
@@ -191,48 +214,58 @@ let draw_decision_boundary weights bias renderer =
       let px2, py2 = transform (x2, y2) in
 
       let color = Draw.opaque Draw.green in
-      Draw.line ~color ~x0:px1 ~y0:py1 ~x1:px2 ~y1:py2 renderer
+      Draw.line ~color ~x0:px1 ~y0:py1 ~x1:px2 ~y1:py2 renderer;
+      draw_weight_vector w1 w2 renderer;
+      Printf.printf "Drawing decision boundary from (%f, %f) to (%f, %f)\n" x1
+        y1 x2 y2
   | _ -> ()
 
 let update_canvas ?weights bias area () =
   Sdl_area.clear area;
   Sdl_area.add area draw_points;
-  Option.iter
-    (fun w -> Sdl_area.add area (draw_decision_boundary w bias))
-    weights
+  match weights with
+  | None -> ()
+  | Some w -> Sdl_area.add area (draw_decision_boundary w bias)
+(* Option.iter (fun w -> Sdl_area.add area (draw_decision_boundary w bias))
+   weights *)
 
 let run_training_stepwise steps_label =
-  let perceptron = init_perceptron !current_table 100 in
-  let steps = ref 0 in
-  let finished = ref false in
+  let perceptron = init_perceptron !current_table 1000 in
+  current_perceptron := Some perceptron;
+  step_idx := 0;
+  steps_taken := 0;
+  step_finished := false;
+  W.set_text steps_label "Steps: 0";
+  update_canvas ~weights:([] : float list) 0 area () (* Clear previous line *)
 
-  let data_array = Array.of_list (data_to_list !current_table) in
-  let idx = ref 0 in
-
-  let rec step_graph () =
-    if !finished then ignore (W.set_text steps_label "Done!")
-    else if !idx >= Array.length data_array then
-      if check_perceptron perceptron then finished := true else idx := 0
-    else
-      let input, label = data_array.(!idx) in
-      incr idx;
-      let updated = step perceptron input label in
-      incr steps;
-      W.set_text steps_label ("Steps: " ^ string_of_int !steps);
-      if not updated then (
+(* Perform one training step manually *)
+let do_step steps_label =
+  match !current_perceptron with
+  | None -> ()
+  | Some perceptron ->
+      let data_array = Array.of_list (data_to_list !current_table) in
+      if !step_finished then W.set_text steps_label "Done!"
+      else if !step_idx >= Array.length data_array then
+        if check_perceptron perceptron then (
+          step_finished := true;
+          W.set_text steps_label "Done!")
+        else step_idx := 0
+      else
+        let input, label = data_array.(!step_idx) in
+        incr step_idx;
+        incr steps_taken;
+        let updated = step perceptron input label in
         let weights =
           to_list (get_weight perceptron) |> List.hd |> List.map float_of_int
         in
-        List.iteri
-          (fun i w ->
-            print_endline
-              ("Weight (step " ^ string_of_int !steps ^ ") [" ^ string_of_int i
-             ^ "]: " ^ string_of_float w))
-          weights;
-        update_canvas ~weights (get_bias perceptron) area ());
-      ignore (Timeout.add 1000 step_graph)
-  in
-  ignore (Timeout.add 2 step_graph)
+        W.set_text steps_label ("Steps: " ^ string_of_int !steps_taken);
+        update_canvas ~weights (get_bias perceptron) area ();
+        if not updated then
+          List.iteri
+            (fun i w ->
+              print_endline
+                ("Weight [" ^ string_of_int i ^ "]: " ^ string_of_float w))
+            weights
 
 let run_training_final steps_label =
   let perceptron = init_perceptron !current_table 100 in
@@ -256,10 +289,11 @@ let run_training_final steps_label =
 
 let visualize_perceptron () =
   let steps_label = W.label "Steps: 0" in
-
+  let btn_next = W.button "" ~action:(fun _ -> do_step steps_label) in
   let btn_steps =
     W.button "Train Step-by-Step" ~action:(fun _ ->
-        run_training_stepwise steps_label)
+        run_training_stepwise steps_label;
+        W.set_text btn_next "Next Step")
   in
   let btn_final =
     W.button "Train Fully" ~action:(fun _ -> run_training_final steps_label)
@@ -276,7 +310,7 @@ let visualize_perceptron () =
       [
         L.resident canvas;
         L.flat_of_w [ btn_steps; btn_final; btn_back ];
-        L.resident steps_label;
+        L.flat_of_w [ steps_label; btn_next ];
       ]
   in
   layout
