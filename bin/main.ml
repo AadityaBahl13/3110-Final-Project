@@ -271,15 +271,12 @@ let rec draw_dt_helper (dt : Finalproject.Decision_tree.t) renderer trans
           trans (float_of_int xr_min, float_of_int yr_min)
         in
 
-        if draw1 then (
-          Printf.printf "Drawing at: (%d, %d)\n%!" xl_min_t
-            (yl_min_t - (hl * scale));
+        if draw1 then
           Draw.rectangle renderer ~color:l_color ~w:(wl * scale) ~h:(hl * scale)
             ~x:xl_min_t
-            ~y:(yl_min_t - (hl * scale)))
+            ~y:(yl_min_t - (hl * scale))
         else if s_dim = 0 then (
           Stack.push (x_min, s_val) x_stack;
-          Printf.printf "Pushing: (%d, %d)\n%!" x_min s_val;
           Stack.push (y_min, y_max) y_stack;
           draw_dt_helper (get_left t) renderer trans x_stack y_stack scale)
         else (
@@ -287,15 +284,12 @@ let rec draw_dt_helper (dt : Finalproject.Decision_tree.t) renderer trans
           Stack.push (y_min, s_val) y_stack;
           draw_dt_helper (get_left t) renderer trans x_stack y_stack scale);
 
-        if draw2 then (
-          Printf.printf "Drawing at: (%d, %d)\n%!" xr_min_t
-            (yr_min_t - (hr * scale));
+        if draw2 then
           Draw.rectangle renderer ~color:r_color ~w:(scale * wr) ~h:(scale * hr)
             ~x:xr_min_t
-            ~y:(yr_min_t - (hr * scale)))
+            ~y:(yr_min_t - (hr * scale))
         else if s_dim = 0 then (
           Stack.push (s_val, x_max) x_stack;
-          Printf.printf "Pushing: (%d, %d)\n%!" s_val x_max;
           Stack.push (y_min, y_max) y_stack;
           draw_dt_helper (get_right t) renderer trans x_stack y_stack scale)
         else (
@@ -308,11 +302,9 @@ let rec draw_dt_helper (dt : Finalproject.Decision_tree.t) renderer trans
         let y_min, y_max = Stack.top y_stack in
         if s_dim = 0 then (
           Stack.push (x_min, s_val) x_stack;
-          Printf.printf "Pushing: (%d, %d)\n%!" x_min s_val;
           Stack.push (y_min, y_max) y_stack;
           draw_dt_helper (get_left t) renderer trans x_stack y_stack scale;
           Stack.push (s_val, x_max) x_stack;
-          Printf.printf "Pushing: (%d, %d)\n%!" s_val x_max;
           Stack.push (y_min, y_max) y_stack;
           draw_dt_helper (get_right t) renderer trans x_stack y_stack scale)
         else (
@@ -515,22 +507,106 @@ let update_screen () =
 
 (* ---------- Entry Point ---------- *)
 
+let string_to_tensor str =
+  let int_list = List.map int_of_string (String.split_on_char ' ' str) in
+  Finalproject.Lin_alg.create [ int_list ]
+
+let rec main_loop_perceptron perceptron =
+  try
+    print_endline "Please enter a new point:";
+    let new_vec = input_line stdin in
+    if new_vec = "exit" then exit 0;
+    let tensor = string_to_tensor new_vec in
+    let prediction = Finalproject.Perceptron.predict perceptron tensor in
+    print_endline
+      ("The perceptron predicts that this point has label "
+      ^ label_to_string (tensor, prediction));
+    print_newline ();
+    main_loop_perceptron perceptron
+  with
+  | Finalproject.Lin_alg.InvalidDimensions ->
+      print_endline
+        ("The new point has to be of dimension "
+        ^ string_of_int (get_dimension !current_table));
+      print_newline ();
+      main_loop_perceptron perceptron
+  | int_of_string ->
+      print_endline "This is not a valid vector";
+      print_newline ();
+      main_loop_perceptron perceptron
+
+let rec main_loop_decision_tree tree =
+  try
+    print_endline "Please enter a new point:";
+    let new_vec = input_line stdin in
+    if new_vec = "exit" then exit 0;
+    let tensor = string_to_tensor new_vec in
+    let prediction = Finalproject.Decision_tree.predict tree tensor in
+    print_endline
+      ("The decision tree predicts that this point has label "
+      ^ label_to_string (tensor, prediction));
+    print_newline ();
+    main_loop_decision_tree tree
+  with
+  | Finalproject.Lin_alg.InvalidDimensions ->
+      print_endline
+        ("The new point has to be of dimension "
+        ^ string_of_int (get_dimension !current_table));
+      print_newline ();
+      main_loop_decision_tree tree
+  | int_of_string ->
+      print_endline "This is not a valid vector";
+      print_newline ();
+      main_loop_decision_tree tree
+
 let () =
-  if Array.length Sys.argv < 2 then (
-    print_endline ("Usage: " ^ Sys.argv.(0) ^ " <csv_file>");
-    exit 1);
+  try
+    if Array.length Sys.argv < 4 || Array.length Sys.argv > 5 then (
+      print_endline
+        ("Usage: " ^ Sys.argv.(0)
+       ^ " <csv_file> <model type> <model param> <g (gui)>");
+      exit 1);
 
-  let file = Sys.argv.(1) in
-  let table = read_from_csv file in
-  let table_list = data_to_list table in
-  current_data := table_list;
-  current_table := table;
+    if int_of_string Sys.argv.(3) <= 0 then
+      failwith "You must pass a positive model parameter";
 
-  (* Set initial layout *)
-  let init = build_screen !current_screen in
-  L.set_rooms ~sync:false root_layout [ init ];
-  L.fit_content root_layout;
-  Bogue.run ~before_display:update_screen (Bogue.of_layout root_layout)
+    let file = Sys.argv.(1) in
+    let table = read_from_csv file in
+    let table_list = data_to_list table in
+    current_data := table_list;
+    current_table := table;
+
+    if Array.length Sys.argv = 5 then
+      if Sys.argv.(4) <> "g" then failwith "Invalid argument"
+      else if get_dimension !current_table <> 2 then
+        failwith "Cannot provide GUI visualization of non 2D data";
+
+    (* Set initial layout *)
+    if Array.length Sys.argv = 5 then (
+      let init = build_screen !current_screen in
+      L.set_rooms ~sync:false root_layout [ init ];
+      L.fit_content root_layout;
+      Bogue.run ~before_display:update_screen (Bogue.of_layout root_layout));
+
+    if Sys.argv.(2) = "perceptron" then (
+      let perceptron =
+        init_perceptron !current_table (int_of_string Sys.argv.(3))
+      in
+      Finalproject.Perceptron.train perceptron;
+      main_loop_perceptron perceptron)
+    else if Sys.argv.(2) = "decision_tree" then (
+      let tree =
+        init_decision_tree !current_table (int_of_string Sys.argv.(3))
+      in
+      Finalproject.Decision_tree.train tree;
+      main_loop_decision_tree tree)
+    else
+      failwith
+        "Invalid model type. You must pass \"perceptron\" or \"decision_tree\" \
+         as your model type"
+  with
+  | Failure x -> print_endline ("Error: " ^ x)
+  | _ -> print_endline "Error: An unknown exception has occured"
 
 (* ---------- Other Functions ---------- *)
 let main_menu () =

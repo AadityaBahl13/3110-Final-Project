@@ -105,11 +105,9 @@ let rec split_data_helper l_list r_list (data : (tensor * label) list)
   match data with
   | [] -> ()
   | (tensor, label) :: t -> begin
-      print_endline "SPLITTTTTTTING DA DATA";
       let left_or_right = split tensor in
       if left_or_right then r_list := (tensor, label) :: !r_list
       else l_list := (tensor, label) :: !l_list;
-      Printf.printf "%d %d \n%!" (List.length !l_list) (List.length !r_list);
       split_data_helper l_list r_list t split
     end
 
@@ -119,9 +117,6 @@ let split_data data split =
   split_data_helper l_data_list r_data_list data split;
   let l_data = list_to_data !l_data_list in
   let r_data = list_to_data !r_data_list in
-  Printf.printf "MOMENT OF TRUTH: %d %d \n%!"
-    (List.length (data_to_list l_data))
-    (List.length (data_to_list r_data));
   (l_data, r_data)
 
 let rec find_split_helper best_entropy best_split best_val best_dim data_list
@@ -130,7 +125,6 @@ let rec find_split_helper best_entropy best_split best_val best_dim data_list
   | [] -> (best_entropy, best_split, best_val, best_dim)
   | tensor1 :: [] -> (best_entropy, best_split, best_val, best_dim)
   | tensor1 :: tensor2 :: t -> begin
-      print_endline "WE FINDING SPLITS DIVAAAAAAA";
       let x1_list, x2_list =
         (List.hd (to_list (fst tensor1)), List.hd (to_list (fst tensor2)))
       in
@@ -142,16 +136,12 @@ let rec find_split_helper best_entropy best_split best_val best_dim data_list
       if
         current_entropy <= best_entropy
         && current_val <> List.nth x2_list dimension
-      then (
-        Printf.printf "FUCK YES split %d at %d\n%!" dimension current_val;
+      then
         find_split_helper current_entropy current_split (Some current_val)
-          (Some dimension) (tensor2 :: t) data data_size dimension)
-      else (
-        Printf.printf "FUCK NO. Current entropy %f at val %d with thing %d\n%!"
-          current_entropy current_val
-          (List.nth x2_list dimension);
+          (Some dimension) (tensor2 :: t) data data_size dimension
+      else
         find_split_helper best_entropy best_split best_val best_dim
-          (tensor2 :: t) data data_size dimension)
+          (tensor2 :: t) data data_size dimension
     end
 
 let find_split t =
@@ -163,8 +153,6 @@ let find_split t =
       let best_val = ref None in
       let best_dim = ref None in
       let dimensions = get_dimension tree.data in
-      print_int dimensions;
-      print_newline ();
       for d = 0 to dimensions - 1 do
         let new_entropy, new_split, new_val, new_dim =
           let unsorted = data_to_list tree.data in
@@ -178,8 +166,6 @@ let find_split t =
                 end)
               unsorted
           in
-          print_int (List.length unsorted);
-          print_newline ();
           find_split_helper !best_entropy !best_split !best_val !best_dim
             sorted_d tree.data tree.data_size d
         in
@@ -200,14 +186,6 @@ let split tree =
       t.split := opt_split;
       t.split_value := opt_val;
       t.split_dim := opt_dim;
-      let d, v =
-        match (opt_dim, opt_val) with
-        | Some d, Some v -> (d, v)
-        | _ -> (min_int, min_int)
-      in
-      Printf.printf "entropy is %f split %d at %d\n%!"
-        (entropy t.data t.data_size opt_split)
-        d v;
       let l_data, r_data = split_data (data_to_list t.data) opt_split in
       if
         Float.abs (entropy t.data t.data_size opt_split -. 0.) < slack
@@ -239,33 +217,29 @@ let split tree =
            if l_neg > l_pos then t.left := Leaf negative);
         let r_size = tup_sum (count_labels r_data) in
         let r_entropy = entropy r_data r_size default_split in
-        (if Float.abs r_entropy > slack then
-           t.right :=
-             Tree
-               {
-                 data = r_data;
-                 split = ref default_split;
-                 split_value = ref None;
-                 split_dim = ref None;
-                 data_size = r_size;
-                 entropy = entropy r_data r_size default_split;
-                 max_splits = t.max_splits - 1;
-                 left = ref (Leaf positive);
-                 right = ref (Leaf negative);
-               }
-         else
-           let r_pos, r_neg = count_labels r_data in
-           if r_pos > r_neg then t.right := Leaf positive);
-        print_endline "cunt"
+        if Float.abs r_entropy > slack then
+          t.right :=
+            Tree
+              {
+                data = r_data;
+                split = ref default_split;
+                split_value = ref None;
+                split_dim = ref None;
+                data_size = r_size;
+                entropy = entropy r_data r_size default_split;
+                max_splits = t.max_splits - 1;
+                left = ref (Leaf positive);
+                right = ref (Leaf negative);
+              }
+        else
+          let r_pos, r_neg = count_labels r_data in
+          if r_pos > r_neg then t.right := Leaf positive
     end
 
 let rec train tree =
   match tree with
-  | Leaf y -> print_endline "DAFUQ"
+  | Leaf y -> ()
   | Tree t ->
-      print_endline "SPLITTING THE CUNT";
       split tree;
-      print_endline "TRAINING LEFT";
       train !(t.left);
-      print_endline "TRAINING RIGHT";
       train !(t.right)
