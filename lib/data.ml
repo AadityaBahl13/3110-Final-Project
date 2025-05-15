@@ -122,29 +122,20 @@ let data_to_list (data : t) =
     (fun key label accumulator -> (key, label) :: accumulator)
     (get_data_set data) []
 
-let list_to_data_set lst table =
+let rec list_to_data_helper lst table =
   match lst with
   | [] -> ()
-  | (tensor, label) :: t -> Hashtbl.add table tensor label
+  | (tensor, label) :: t ->
+      Hashtbl.add table tensor label;
+      list_to_data_helper t table
 
-(** Create an empty Data.t *)
-let empty () : t =
-  { data_set = Hashtbl.create 0
-  ; dimension = ref 0
-  }
+let table_to_data table dim = { data_set = table; dimension = ref dim }
 
 let list_to_data lst =
-  match lst with
-  | [] ->
-      empty ()
-  | (x,_)::_ ->
-      let table = Hashtbl.create (List.length lst) in
-      list_to_data_set lst table;
-      (* dimension is number of columns in the first tensor *)
-      let _rows, cols = shape x in
-      { data_set = table
-      ; dimension = ref cols
-      }
+  let table = Hashtbl.create (List.length lst) in
+  list_to_data_helper lst table;
+  try table_to_data table (snd (shape (fst (List.hd lst))))
+  with Failure x -> table_to_data table 0
 
 let init_data = { data_set = Hashtbl.create 10; dimension = ref 0 }
 

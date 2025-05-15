@@ -36,6 +36,6 @@ val color_of_label : label -> Draw.rgb
 
 val init_data : t
 
-(** [filter data p] returns the subset of [data] whose feature vectors satisfy
-    the predicate [p].  All other examples are dropped. *)
 val filter : t -> (tensor -> bool) -> t
+(** [filter data p] returns the subset of [data] whose feature vectors satisfy
+    the predicate [p]. All other examples are dropped. *)
