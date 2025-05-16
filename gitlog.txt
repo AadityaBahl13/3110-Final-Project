@@ -1,0 +1,555 @@
+commit 1444d26ef7171388e62aa874705551823d6d42c9
+Merge: b26e0a7 b8e6a32
+Author: AadityaBahl13 <aaditya.bahl@gmail.com>
+Date:   Thu May 15 23:21:20 2025 -0400
+
+    Merge pull request #23 from AadityaBahl13/main
+    
+    Finalize project
+
+commit b8e6a320fda4c77a5f810ae43759b3a783309763
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Thu May 15 23:19:44 2025 -0400
+
+    Finalizing yaml file
+
+commit b6798fe713bc9dfad4ae858be485fe8f971a0566
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Thu May 15 20:32:20 2025 -0400
+
+    Adding Documentation and Finalizing README
+
+commit 88e96bb726a643fc0f296250cf7a7c177d57d60b
+Merge: 6d32beb b26e0a7
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Thu May 15 19:55:53 2025 -0400
+
+    Merge branch 'main' of https://github.com/AadityaBahl13/3110-Final-Project
+
+commit b26e0a7be65dd41c4f98b9ff044c914502bbf591
+Merge: 6256f2c a2dfc6e
+Author: Danielle Imogu <146762203+dann1m@users.noreply.github.com>
+Date:   Thu May 15 17:52:06 2025 -0400
+
+    Merge pull request #22 from dann1m/main
+    
+    README update
+
+commit a2dfc6e21762ad8a689b51693002a977fc179754
+Author: Danielle Imogu <dannieim689@gmail.com>
+Date:   Thu May 15 17:49:53 2025 -0400
+
+    README update
+
+commit 6d32beb8edd2461d367c8a5576de837e13767329
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Thu May 15 03:47:02 2025 -0400
+
+    Creating the text interface
+
+commit 6256f2c4fc7ebdd89ae52fb85abead8b7fcf2288
+Merge: b2c2c47 7fd5c10
+Author: Danielle Imogu <146762203+dann1m@users.noreply.github.com>
+Date:   Thu May 15 01:45:40 2025 -0400
+
+    Merge pull request #21 from dann1m/main
+    
+    small fix: next button and added decision tree button
+
+commit 7fd5c10063bf27ff6862025796d0af2b2d877af8
+Author: Danielle Imogu <dannieim689@gmail.com>
+Date:   Thu May 15 01:45:18 2025 -0400
+
+    small fix: next button and added decision tree button
+
+commit b2c2c47213b946a592c2854a0011ed1b234ffefe
+Merge: 1eb9f46 197e29b
+Author: AadityaBahl13 <aaditya.bahl@gmail.com>
+Date:   Thu May 15 01:24:23 2025 -0400
+
+    Merge pull request #20 from AadityaBahl13/main
+    
+    Decision Tree GUI
+
+commit 197e29bddfd93511b33105c66dcc6929b3825f14
+Merge: 52bafce 1eb9f46
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Thu May 15 01:23:22 2025 -0400
+
+    Merge branch 'main' of https://github.com/AadityaBahl13/3110-Final-Project
+
+commit 52bafce214a62f3adbc5391524a65125f9bfe905
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Thu May 15 01:21:58 2025 -0400
+
+    Finalizing Decision Tree GUI
+
+commit 1eb9f46eeae32bfbacbd8cd52f8fcd260fe71213
+Merge: 6487e0d 5d90dbf
+Author: Danielle Imogu <146762203+dann1m@users.noreply.github.com>
+Date:   Thu May 15 01:21:18 2025 -0400
+
+    Merge pull request #19 from dann1m/main
+    
+    current stages- perceptron done lowkey
+
+commit 5d90dbff7eee5b64ed637d85b59d7e953e5f7b18
+Author: Danielle Imogu <dannieim689@gmail.com>
+Date:   Wed May 14 23:28:03 2025 -0400
+
+    current stages
+
+commit 41039fff654b99733c58795e3c2109a9b69cf7c3
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Wed May 14 22:51:22 2025 -0400
+
+    Making Decision Tree GUI
+
+commit 6487e0d057a37bf0a4125fde8f9366459bc43b97
+Merge: 7f96cc9 9a7c1fa
+Author: Danielle Imogu <146762203+dann1m@users.noreply.github.com>
+Date:   Wed May 14 16:26:51 2025 -0400
+
+    Merge pull request #17 from AadityaBahl13/main
+    
+    Debugging Perceptron and Main function
+
+commit 9a7c1fa92a4cd5e61ec3b44ef0c85cbd1cdb3797
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Tue May 13 18:59:09 2025 -0400
+
+    Debugging Perceptron and Main function
+
+commit 7f96cc9127c073fb7c6291cbf731bba87ba43e97
+Author: Jonah Bernard <jb2528@cornell.edu>
+Date:   Tue May 13 17:10:56 2025 -0400
+
+    Fixed infinite loop bug in entropy function; Added tests achieving 87% coverage for the decision tree module.
+
+commit c52e019b704ab28ec2509d35dbeb195beb64a96f
+Merge: ecb8e1d ecc9219
+Author: Jonah Bernard <96398205+Jonahcb@users.noreply.github.com>
+Date:   Tue May 13 14:14:40 2025 -0400
+
+    Merge pull request #16 from AadityaBahl13/main
+    
+    Decision Tree
+
+commit ecc92193ccf6379253dc625376d3743353fad0d9
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Tue May 13 13:19:12 2025 -0400
+
+    Adjust entropy function in decision tree
+
+commit 7492cafac58d8623c199fb4c1e863ea3ab07ae97
+Merge: e1b2cd4 ecb8e1d
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Tue May 13 13:06:12 2025 -0400
+
+    Merge branch 'main' of https://github.com/AadityaBahl13/3110-Final-Project
+
+commit ecb8e1df98413ef80ebe1c1363590f0b0f09765c
+Author: Jonah Bernard <jb2528@cornell.edu>
+Date:   Tue May 13 11:31:25 2025 -0400
+
+    Implemented filter function in Data module and implemented entropy function in Decision_tree module
+
+commit d988d7e44025b5a3767dd09cfbf0062979a417f3
+Merge: d984bd6 2c6b683
+Author: Jonah Bernard <96398205+Jonahcb@users.noreply.github.com>
+Date:   Tue May 13 10:26:00 2025 -0400
+
+    Merge pull request #15 from dann1m/main
+    
+    Updated GUI with implemented perceptron skeleton
+
+commit e1b2cd41cf5c6529290a999648fe91b6b6ea223c
+Merge: 36c82db 62d18f6
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Tue May 13 02:10:03 2025 -0400
+
+    Merge branch 'main' of https://github.com/AadityaBahl13/3110-Final-Project
+
+commit 36c82dbad3b3da3a8ab84726c4120fe3ca43e382
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Tue May 13 02:07:27 2025 -0400
+
+    Implement many of the functions in the decision tree module
+
+commit 2c6b6836c417959ab52d07d10bc0c74959c49aba
+Author: Danielle Imogu <dannieim689@gmail.com>
+Date:   Tue May 13 02:04:26 2025 -0400
+
+    why change function names without saying so?
+
+commit 5dcc56a166f4ce213c12fd587d21696e3a625638
+Merge: 7b965f2 d984bd6
+Author: Danielle Imogu <146762203+dann1m@users.noreply.github.com>
+Date:   Tue May 13 01:59:30 2025 -0400
+
+    Merge branch 'main' into main
+
+commit 7b965f212a130bd3778155d7e71529e1659da6e5
+Author: Danielle Imogu <dannieim689@gmail.com>
+Date:   Tue May 13 01:57:03 2025 -0400
+
+    added "linear" tester and edited scaling
+
+commit a21a4bf9dc2261e98c3bfd7349fb48f7713d022d
+Author: Danielle Imogu <dannieim689@gmail.com>
+Date:   Tue May 13 00:02:48 2025 -0400
+
+    visualize perceptron step by step basics
+
+commit d984bd6b132223b6f44d0d7b10539bf638a0908e
+Merge: 36aa4c0 62d18f6
+Author: Jonah Bernard <96398205+Jonahcb@users.noreply.github.com>
+Date:   Mon May 12 23:40:40 2025 -0400
+
+    Merge pull request #14 from AadityaBahl13/main
+    
+    Create Interface for Decision Tree
+
+commit 62d18f6b1355382d0b8d40835044776f77a802bb
+Merge: 1133cfe 36aa4c0
+Author: Jonah Bernard <96398205+Jonahcb@users.noreply.github.com>
+Date:   Mon May 12 23:40:19 2025 -0400
+
+    Merge branch 'main' into main
+
+commit 1133cfe78816bb31274e6e013f6d566c1e40428d
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Mon May 12 23:27:44 2025 -0400
+
+    Fixes to the Interface for decision tree
+
+commit 4f78ec48600272a434130e436b487234bc51059c
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Mon May 12 23:24:14 2025 -0400
+
+    Create Interface for Decision Tree
+
+commit 9543999c5bbb7b2c34b1549f664300494fe14beb
+Merge: edaca21 36aa4c0
+Author: Danielle Imogu <146762203+dann1m@users.noreply.github.com>
+Date:   Mon May 12 22:20:16 2025 -0400
+
+    Merge branch 'main' into main
+
+commit 36aa4c06ac7adf268d4ca6f3c1e4ec7f881279ee
+Author: Jonah Bernard <jb2528@cornell.edu>
+Date:   Mon May 12 22:14:44 2025 -0400
+
+    Uncommented
+
+commit 3e330a7791d74a148ef4662cf005748fda89cdb5
+Author: Jonah Bernard <jb2528@cornell.edu>
+Date:   Mon May 12 21:54:48 2025 -0400
+
+    Fixed some bugs in perceptron.ml and added 97% test coverage for perceptron.ml
+
+commit 0989aa1cf6358ce020e8911c149331d6955b0ba1
+Merge: 0f0bc60 69ea562
+Author: Jonah Bernard <jb2528@cornell.edu>
+Date:   Mon May 12 20:26:11 2025 -0400
+
+    Merge remote-tracking branch 'refs/remotes/origin/main'
+
+commit 0f0bc6043267c6ed124911d678ead3e3e11c5778
+Author: Jonah Bernard <jb2528@cornell.edu>
+Date:   Mon May 12 19:22:59 2025 -0400
+
+    Debugging perceptron
+
+commit 69ea56287d9d777a544373e11115802738f41fc0
+Merge: 184a1f3 7e5886c
+Author: Jonah Bernard <96398205+Jonahcb@users.noreply.github.com>
+Date:   Mon May 12 19:21:28 2025 -0400
+
+    Merge pull request #12 from AadityaBahl13/main
+    
+    Fixing data dimension bug
+
+commit 7e5886c6f71c089d6445f31cd7588ed16a10099b
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Mon May 12 18:35:22 2025 -0400
+
+    Fixing data dimension bug
+
+commit 184a1f31f2ba9a884840cb806f4098d6b9d5d88b
+Author: Jonah Bernard <jb2528@cornell.edu>
+Date:   Mon May 12 17:07:33 2025 -0400
+
+    Fixed some typos in lib/dune file
+
+commit 39d9ce1551d4f837e3f45c1332358967af1fbdec
+Merge: c8eff77 b6090fa
+Author: Jonah Bernard <96398205+Jonahcb@users.noreply.github.com>
+Date:   Sun May 11 23:22:42 2025 -0400
+
+    Merge pull request #11 from AadityaBahl13/main
+    
+    Debugging the perceptron algorithm
+
+commit b6090faa2a38cfda369331527e8f6c8af0c0f2fe
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Sun May 11 23:19:56 2025 -0400
+
+    Debugging the perceptron algorithm
+
+commit edaca2153284fe324db0c3e5d6362a17953bbc8d
+Author: Danielle Imogu <dannieim689@gmail.com>
+Date:   Sun May 11 20:04:16 2025 -0400
+
+    basic graphing for perceptron
+
+commit 2c117d0c78cb8575667f74bbef4ed5c3f4233d3b
+Author: Danielle Imogu <dannieim689@gmail.com>
+Date:   Sun May 11 19:38:13 2025 -0400
+
+    Change switch between screens
+
+commit 2ce1ceccf2c116e69de47e8d864004b2ac9adbd5
+Author: Danielle Imogu <dannieim689@gmail.com>
+Date:   Sun May 11 18:10:36 2025 -0400
+
+    main menu and title screen setup
+
+commit c8eff77f99bc5ef716a5a99f1e35f119e517e1e6
+Merge: 2d12879 1f790ed
+Author: Jonah Bernard <96398205+Jonahcb@users.noreply.github.com>
+Date:   Sun May 11 15:41:53 2025 -0400
+
+    Merge pull request #10 from dann1m/main
+    
+    Basic GUI
+
+commit b3dec3a9ff0f67c814ffbf8bfd6e2ed6b753d07d
+Author: Danielle Imogu <dannieim689@gmail.com>
+Date:   Sun May 11 01:14:14 2025 -0400
+
+    UPDATED GRAPH TO USE TENSORS
+
+commit 1f790ed604cf3934150af91b085e2d22800991a2
+Merge: e183d1b 2d12879
+Author: Danielle Imogu <146762203+dann1m@users.noreply.github.com>
+Date:   Sun May 11 00:43:00 2025 -0400
+
+    Merge branch 'main' into main
+
+commit 2d12879f12e9d46ec1eca51e68db64afcba17ba8
+Merge: a1dfa44 ae9ee27
+Author: Jonah Bernard <96398205+Jonahcb@users.noreply.github.com>
+Date:   Fri May 9 22:59:06 2025 -0400
+
+    Merge pull request #9 from AadityaBahl13/main
+    
+    Create test suite for Lin Alg module
+
+commit ae9ee272c759142a600edb6699938843227af2c0
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Fri May 9 01:04:08 2025 -0400
+
+    Implement Perceptron Algorithm
+    
+    - Create a perceptron module
+    - Implement the perceptron algorithm
+    - Develop methods to train the perceptron given a data set
+
+commit 58996197ac9be2ffbc82b5205ad00dbc671d6390
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Thu May 8 01:25:44 2025 -0400
+
+    Create test suite for Lin Alg module
+    
+    - Created unit tests for all functions in LinAlg module
+    - Achieved 90% coverage
+
+commit a1dfa4422330d0fd7637c1dd690b898756222184
+Merge: 88f78d2 ad2cf7c
+Author: Jonah Bernard <96398205+Jonahcb@users.noreply.github.com>
+Date:   Thu May 1 16:41:44 2025 -0400
+
+    Merge pull request #8 from AadityaBahl13/main
+    
+    Implement Add and Dot Functions in LinAlg Module
+
+commit e183d1b35c00a4400f4fa43f46ce631347fa832e
+Author: Danielle Imogu <dannieim689@gmail.com>
+Date:   Thu May 1 15:39:02 2025 -0400
+
+    Added axes
+
+commit ad2cf7cb90e18a125356153f7ee5e2c4506ef65d
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Thu May 1 15:31:28 2025 -0400
+
+    Implement Add and Dot Functions in LinAlg Module
+    
+    - Developed body for add and dot functions in LinAlg module
+
+commit 4197ebdb041eb0c2bbc447cbb90435e9608aa14b
+Author: Danielle Imogu <dannieim689@gmail.com>
+Date:   Thu Apr 24 22:10:55 2025 -0400
+
+    Created the basic GUI for plotting 2D points
+
+commit 88f78d2858f953c549520e63fd1762239edc4b89
+Author: Jonah Bernard <jb2528@cornell.edu>
+Date:   Fri Apr 18 16:12:57 2025 -0400
+
+    Removed elementwise multiplication and elementwise exp from interface file
+
+commit d913aeb3292684ea73f8c2ce2233862aad30f1c3
+Author: Jonah Bernard <jb2528@cornell.edu>
+Date:   Wed Apr 16 16:24:43 2025 -0400
+
+    Implemented transpose and sum
+
+commit 4c39597e81fee3b4808080e9fbad61864ba3c14e
+Merge: 1c2f0f1 7d9fff4
+Author: Jonah Bernard <96398205+Jonahcb@users.noreply.github.com>
+Date:   Thu Apr 10 05:19:38 2025 -0700
+
+    Merge pull request #7 from AadityaBahl13/main
+    
+    Create compilation unit for linalg operations
+
+commit 7d9fff4aec7c75fab061fbe2a3959aa4d12544f2
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Thu Apr 10 00:32:01 2025 -0400
+
+    Create compilation unit for linalg operations
+    
+    - Created compilation unit for module that contains many useful linear algebra operations
+    - Developed the interface file to set a roadmap for the group to start implementations
+
+commit 1c2f0f1926d30f75bac8ba24b61bd18c4a3319e8
+Merge: 3d7105e b80761e
+Author: Jonah Bernard <96398205+Jonahcb@users.noreply.github.com>
+Date:   Fri Mar 28 19:25:08 2025 -0400
+
+    Merge pull request #6 from dann1m/main
+    
+    Fixed test case
+
+commit b80761e5563d4ea3c940787d71e14bb3962407fb
+Author: Danielle Imogu <dannieim689@gmail.com>
+Date:   Fri Mar 28 19:12:12 2025 -0400
+
+    Fixed test case
+
+commit 3d7105e5fd3404a445498e0f750684a5520116d1
+Merge: 512fb2b c88c2f5
+Author: Jonah Bernard <96398205+Jonahcb@users.noreply.github.com>
+Date:   Fri Mar 28 10:14:59 2025 -0400
+
+    Merge pull request #5 from AadityaBahl13/main
+    
+    Added documentation and necessary files
+
+commit c88c2f5135f09c7ce31a5e7f2ece1d032a3fbf33
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Fri Mar 28 01:04:16 2025 -0400
+
+    Added documentation and necessary files
+    
+    - Added documentation to the data module
+    - Added yaml file as well as INSTALL.md and AUTHORS.md
+    - Expanded valid.csv to make youtube demo more impressive
+
+commit 512fb2b9f6c71645ec0d17f6cb3b316899a81ef0
+Merge: 18e52f3 dd2a3b3
+Author: Jonah Bernard <96398205+Jonahcb@users.noreply.github.com>
+Date:   Thu Mar 27 20:17:40 2025 -0400
+
+    Merge pull request #4 from dann1m/main
+    
+    Created basic OUnit2 test suite and Driver
+
+commit dd2a3b38df6226505e250f5c7c17926d65702c61
+Author: Danielle Imogu <dannieim689@gmail.com>
+Date:   Thu Mar 27 20:11:21 2025 -0400
+
+    Created basic driver
+    
+    - Takes in data file
+    - Prints out table contents and the # of positive and negative labels
+
+commit f2865fbfe20025430d817df8e205fa99481581c3
+Author: Danielle Imogu <dannieim689@gmail.com>
+Date:   Thu Mar 27 19:45:26 2025 -0400
+
+    Created basic tests for the library
+    
+    - Fixed data.ml code
+    - Added property test functions
+    - Created 3 tests
+
+commit 18e52f367ef202cd8cb6ef151de7af59a945e058
+Merge: deb029d 770cdf0
+Author: Jonah Bernard <96398205+Jonahcb@users.noreply.github.com>
+Date:   Wed Mar 26 14:52:17 2025 -0400
+
+    Merge pull request #3 from AadityaBahl13/main
+    
+    Create data module
+
+commit 770cdf008e8d87aec65b18353440ca5e7b2af12b
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Wed Mar 26 14:23:03 2025 -0400
+
+    Create data module
+    
+    - Created a data module that would be used to load data from a csv file
+    - This data should be in the format of label,feature1,feature2,...
+    - Implemented algorithm that stores every feature vector-label pair, in a hash table for easy lookup in machine learning algorithms
+    - Developed csv format check function to make sure all feature vectors have same dimension
+
+commit deb029d23cfedad9d0a5369bac1ef7e20103e2ae
+Merge: 1e3e1dd e553030
+Author: Jonah Bernard <96398205+Jonahcb@users.noreply.github.com>
+Date:   Mon Mar 10 16:43:30 2025 -0400
+
+    Merge pull request #2 from AadityaBahl13/main
+    
+    Added name to README
+
+commit e553030e64a395139f4e38a965898550f101cbee
+Author: Aaditya Bahl <ab2844@cornell.edu>
+Date:   Mon Mar 10 16:40:19 2025 -0400
+
+    Added name to README
+
+commit 1e3e1dda781a10c8931a76fb72f6ce70941237eb
+Merge: 62e590b 39144c0
+Author: Jonah Bernard <96398205+Jonahcb@users.noreply.github.com>
+Date:   Mon Mar 10 16:31:39 2025 -0400
+
+    Merge pull request #1 from dann1m/patch-1
+    
+    Update README.md: Added name to repo
+
+commit 39144c0579343f3af0032454e9d82a1da7ffbb67
+Author: dann1m <146762203+dann1m@users.noreply.github.com>
+Date:   Mon Mar 10 16:30:42 2025 -0400
+
+    Update README.md: Added name to repo
+
+commit 62e590b27c874c1884e1a00425450163342d056c
+Author: Jonah Bernard <jb2528@cornell.edu>
+Date:   Fri Mar 7 13:21:32 2025 -0500
+
+    Added Jonah's name
+
+commit 1f28294284cd4c48b687c4d989c44e7fa98df3a0
+Author: Jonah Bernard <jb2528@cornell.edu>
+Date:   Fri Mar 7 13:06:20 2025 -0500
+
+    Initial commit
+
+commit c981f0ed601712c7f5f45a3c0ca039356564f92c
+Author: Jonah Bernard <96398205+Jonahcb@users.noreply.github.com>
+Date:   Fri Mar 7 12:55:12 2025 -0500
+
+    Create README.md
