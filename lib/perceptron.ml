@@ -8,6 +8,11 @@ type t = {
   weight : Lin_alg.t ref;
   bias : int ref;
 }
+(** AF: [type t] is a perceptron with training data [data]. Its weight vector
+    and bias are [weight] and [bias] and its maximum step count is [max_step].
+    Finally, the number of steps the perceptron has taken is [steps]
+
+    RI: [steps] must be less than or equal to [max_step]. *)
 
 let init_perceptron data_set max_step =
   {
@@ -15,7 +20,7 @@ let init_perceptron data_set max_step =
     steps = ref 0;
     max_step;
     weight =
-      ref (create [ Array.to_list (Array.make (get_dimension data_set) 0) ]);
+      ref (create [ Array.to_list (Array.make (get_dimension data_set) 1) ]);
     bias = ref 0;
   }
 

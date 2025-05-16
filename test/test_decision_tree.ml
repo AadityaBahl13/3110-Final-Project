@@ -63,7 +63,7 @@ let test_predict_single _ =
 
 (* 6) Train converges on two-point separable dataset *)
 let test_train_converges _ =
-  let data = read_from_csv "../data/balanced.csv" in
+  let data = read_from_csv "../data/valid.csv" in
   let tree = init_decision_tree data 10 in
   train tree;
   List.iter

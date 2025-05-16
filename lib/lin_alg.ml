@@ -1,4 +1,14 @@
-type t = { matrix : int list list; rows : int; columns : int }
+type t = {
+  matrix : int list list;
+  rows : int;
+  columns : int;
+}
+(** AF: [type t] represents a tensor of two dimensions with [matrix] being the
+    list representation of the tensor, [rows] being the nuber of rows, and
+    [columns] being the number of columns
+
+    RI: [rows] and [columns] must be non-negative. [List.length matrix] must
+    equal [rows] and [List.length (List.hd matrix)] must equal [columns] *)
 
 exception InvalidDimensions
 exception OutOfBound

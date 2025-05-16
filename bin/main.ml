@@ -271,15 +271,12 @@ let rec draw_dt_helper (dt : Finalproject.Decision_tree.t) renderer trans
           trans (float_of_int xr_min, float_of_int yr_min)
         in
 
-        if draw1 then (
-          Printf.printf "Drawing at: (%d, %d)\n%!" xl_min_t
-            (yl_min_t - (hl * scale));
+        if draw1 then
           Draw.rectangle renderer ~color:l_color ~w:(wl * scale) ~h:(hl * scale)
             ~x:xl_min_t
-            ~y:(yl_min_t - (hl * scale)))
+            ~y:(yl_min_t - (hl * scale))
         else if s_dim = 0 then (
           Stack.push (x_min, s_val) x_stack;
-          Printf.printf "Pushing: (%d, %d)\n%!" x_min s_val;
           Stack.push (y_min, y_max) y_stack;
           draw_dt_helper (get_left t) renderer trans x_stack y_stack scale)
         else (
@@ -287,15 +284,12 @@ let rec draw_dt_helper (dt : Finalproject.Decision_tree.t) renderer trans
           Stack.push (y_min, s_val) y_stack;
           draw_dt_helper (get_left t) renderer trans x_stack y_stack scale);
 
-        if draw2 then (
-          Printf.printf "Drawing at: (%d, %d)\n%!" xr_min_t
-            (yr_min_t - (hr * scale));
+        if draw2 then
           Draw.rectangle renderer ~color:r_color ~w:(scale * wr) ~h:(scale * hr)
             ~x:xr_min_t
-            ~y:(yr_min_t - (hr * scale)))
+            ~y:(yr_min_t - (hr * scale))
         else if s_dim = 0 then (
           Stack.push (s_val, x_max) x_stack;
-          Printf.printf "Pushing: (%d, %d)\n%!" s_val x_max;
           Stack.push (y_min, y_max) y_stack;
           draw_dt_helper (get_right t) renderer trans x_stack y_stack scale)
         else (
@@ -308,11 +302,9 @@ let rec draw_dt_helper (dt : Finalproject.Decision_tree.t) renderer trans
         let y_min, y_max = Stack.top y_stack in
         if s_dim = 0 then (
           Stack.push (x_min, s_val) x_stack;
-          Printf.printf "Pushing: (%d, %d)\n%!" x_min s_val;
           Stack.push (y_min, y_max) y_stack;
           draw_dt_helper (get_left t) renderer trans x_stack y_stack scale;
           Stack.push (s_val, x_max) x_stack;
-          Printf.printf "Pushing: (%d, %d)\n%!" s_val x_max;
           Stack.push (y_min, y_max) y_stack;
           draw_dt_helper (get_right t) renderer trans x_stack y_stack scale)
         else (
@@ -354,7 +346,9 @@ let update_canvas_dt dt area () =
   Sdl_area.add area (draw_dt dt)
 
 let run_training_stepwise steps_label =
-  let perceptron = init_perceptron !current_table 1000 in
+  let perceptron =
+    init_perceptron !current_table (int_of_string Sys.argv.(2))
+  in
   current_perceptron := Some perceptron;
   step_idx := 0;
   steps_taken := 0;
@@ -367,33 +361,38 @@ let do_step steps_label =
   match !current_perceptron with
   | None -> ()
   | Some perceptron ->
-      let data_array = Array.of_list (data_to_list !current_table) in
-      if !step_finished then W.set_text steps_label "Done!"
-      else if !step_idx >= Array.length data_array then
-        if check_perceptron perceptron then (
-          step_finished := true;
-          W.set_text steps_label "Done!")
-        else step_idx := 0
+      if !steps_taken >= int_of_string Sys.argv.(2) then
+        W.set_text steps_label "done"
       else
-        let input, label = data_array.(!step_idx) in
-        incr step_idx;
-        incr steps_taken;
-        let updated = step perceptron input label in
-        let weights =
-          to_list (get_weight perceptron) |> List.hd |> List.map float_of_int
-        in
-        W.set_text steps_label
-          ("Steps: " ^ string_of_int !steps_taken ^ "      ");
-        update_canvas ~weights (get_bias perceptron) area ();
-        if not updated then
-          List.iteri
-            (fun i w ->
-              print_endline
-                ("Weight [" ^ string_of_int i ^ "]: " ^ string_of_float w))
-            weights
+        let data_array = Array.of_list (data_to_list !current_table) in
+        if !step_finished then W.set_text steps_label "Done!"
+        else if !step_idx >= Array.length data_array then
+          if check_perceptron perceptron then (
+            step_finished := true;
+            W.set_text steps_label "Done!")
+          else step_idx := 0
+        else
+          let input, label = data_array.(!step_idx) in
+          incr step_idx;
+          incr steps_taken;
+          let updated = step perceptron input label in
+          let weights =
+            to_list (get_weight perceptron) |> List.hd |> List.map float_of_int
+          in
+          W.set_text steps_label
+            ("Steps: " ^ string_of_int !steps_taken ^ "      ");
+          update_canvas ~weights (get_bias perceptron) area ();
+          if not updated then
+            List.iteri
+              (fun i w ->
+                print_endline
+                  ("Weight [" ^ string_of_int i ^ "]: " ^ string_of_float w))
+              weights
 
 let run_training_final steps_label =
-  let perceptron = init_perceptron !current_table 100 in
+  let perceptron =
+    init_perceptron !current_table (int_of_string Sys.argv.(2))
+  in
   Finalproject.Perceptron.train perceptron;
   let weights =
     let w = to_list (get_weight perceptron) in
@@ -413,7 +412,7 @@ let run_training_final steps_label =
   W.set_text steps_label "Final result"
 
 let run_training_final_dt steps_label =
-  let dt = init_decision_tree !current_table 50 in
+  let dt = init_decision_tree !current_table (int_of_string Sys.argv.(3)) in
   Finalproject.Decision_tree.train dt;
   update_canvas_dt dt area ();
   W.set_text steps_label "Final result"
@@ -515,22 +514,86 @@ let update_screen () =
 
 (* ---------- Entry Point ---------- *)
 
+let string_to_tensor str =
+  let int_list = List.map int_of_string (String.split_on_char ' ' str) in
+  if List.length int_list <> get_dimension !current_table then
+    raise Finalproject.Lin_alg.InvalidDimensions;
+  Finalproject.Lin_alg.create [ int_list ]
+
+let rec main_loop perceptron d_tree =
+  try
+    print_endline "Please enter a new point:";
+    let new_vec = input_line stdin in
+    if new_vec = "exit" then exit 0;
+    let tensor = string_to_tensor new_vec in
+    let prediction_p = Finalproject.Perceptron.predict perceptron tensor in
+    let prediction_dt = Finalproject.Decision_tree.predict d_tree tensor in
+    print_endline
+      ("The perceptron predicts that this point has label "
+      ^ label_to_string (tensor, prediction_p));
+    print_endline
+      ("The decision tree predicts that this point has label "
+      ^ label_to_string (tensor, prediction_dt));
+    print_newline ();
+    main_loop perceptron d_tree
+  with
+  | Finalproject.Lin_alg.InvalidDimensions ->
+      print_endline
+        ("The new point has to be of dimension "
+        ^ string_of_int (get_dimension !current_table));
+      print_newline ();
+      main_loop perceptron d_tree
+  | int_of_string ->
+      print_endline "This is not a valid vector";
+      print_newline ();
+      main_loop perceptron d_tree
+
 let () =
-  if Array.length Sys.argv < 2 then (
-    print_endline ("Usage: " ^ Sys.argv.(0) ^ " <csv_file>");
-    exit 1);
+  try
+    if Array.length Sys.argv < 4 || Array.length Sys.argv > 5 then (
+      print_endline
+        ("Usage: " ^ Sys.argv.(0)
+       ^ " <csv_file> <perceptron max_step> <decision_tree max_depth> <g (gui)>"
+        );
+      exit 1);
 
-  let file = Sys.argv.(1) in
-  let table = read_from_csv file in
-  let table_list = data_to_list table in
-  current_data := table_list;
-  current_table := table;
+    if int_of_string Sys.argv.(2) <= 0 || int_of_string Sys.argv.(3) <= 0 then
+      failwith "You must pass a positive model parameter";
 
-  (* Set initial layout *)
-  let init = build_screen !current_screen in
-  L.set_rooms ~sync:false root_layout [ init ];
-  L.fit_content root_layout;
-  Bogue.run ~before_display:update_screen (Bogue.of_layout root_layout)
+    let file = Sys.argv.(1) in
+    let table = read_from_csv file in
+    let table_list = data_to_list table in
+    current_data := table_list;
+    current_table := table;
+
+    if Array.length Sys.argv = 5 then
+      if Sys.argv.(4) <> "g" then failwith "Invalid argument"
+      else if get_dimension !current_table <> 2 then
+        failwith "Cannot provide GUI visualization of non 2D data";
+
+    (* Set initial layout *)
+    if Array.length Sys.argv = 5 then (
+      let init = build_screen !current_screen in
+      L.set_rooms ~sync:false root_layout [ init ];
+      L.fit_content root_layout;
+      Bogue.run ~before_display:update_screen (Bogue.of_layout root_layout));
+
+    print_newline ();
+
+    let perceptron =
+      init_perceptron !current_table (int_of_string Sys.argv.(2))
+    in
+    Finalproject.Perceptron.train perceptron;
+    let d_tree =
+      init_decision_tree !current_table (int_of_string Sys.argv.(3))
+    in
+    Finalproject.Decision_tree.train d_tree;
+    main_loop perceptron d_tree
+  with
+  | Failure x -> print_endline ("Error: " ^ x)
+  | int_of_string ->
+      print_endline
+        "Error: You must enter a numerical value for the model params"
 
 (* ---------- Other Functions ---------- *)
 let main_menu () =

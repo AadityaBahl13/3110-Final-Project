@@ -32,25 +32,43 @@ This project provides an interactive visualization tool for understanding how ba
 
 ### Run the App
 
+The application's main purpose is to read user inputed data (of any dimension) 
+from a CSV file (format specification below), train both a linear (perceptron) 
+and non-linear (decision tree) classifier on the data, then prompt the user 
+for more points, and finally output predicitions from the two models for those
+new points. To do this, 3 arguments must be passed:
+1) The file path to the csv file with the training data
+2) The maximum steps allowed for the perceptron
+3) The maximum depth allowed for the decision tree
+
+However, in the case of 2D data, we offer a way to vizualize the decision 
+boundaries that these models create. An optional fourth argument can be 
+passed, `g`, that will start a GUI before the text based prediction
+interface. The GUI graphs the data points, loaded from the CSV file, and
+then gives the options to visualize the perceptron and decsion tree decsion
+boundaries. Below is the syntax of the command that will start the 
+application.
+
 ```bash
-dune exec ./main.exe <csv_file>
+dune exec ./main.exe <csv_file> <max_step> <max_depth> <g (optional)>
 ```
 
 Example:
 
 ```bash
-dune exec ./main.exe data/points.csv
+dune exec ./main.exe data/valid_linear.csv 100 10 g
 ```
 
 ### CSV Format
 
 - Each row should contain a label followed by its feature values.
+- Each feature vector must be of the same dimension.
 - Example ((-1, +1) + 2D features):
 
 ```
 1,2,1
--3,4,0
-0,0,1
+-1,4,0
+1,0,1
 ```
 
 ## Dependencies

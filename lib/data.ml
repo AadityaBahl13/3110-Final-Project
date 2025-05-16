@@ -1,12 +1,14 @@
 open Bogue
 open Lin_alg
 
-type key = int list
 type tensor = Lin_alg.t
+(** [type tensor] represents a feature vector and is an alias for
+    [type Lin_alg.t] *)
 
 type label =
   | Positive
   | Negative
+      (** [type label] represents the binary label for a feature vector *)
 
 let positive = Positive
 let negative = Negative
@@ -20,20 +22,23 @@ type t = {
   data_set : (tensor, label) Hashtbl.t;
   dimension : int ref;
 }
-(** AF: [type t] represents a collection of feature vectors and their
+(** [type t] represents a collection of feature vectors and their associated
+    label. It is implemented with a record that contains a Hashtable that maps
+    feature vectors to label and a field tracking the dimension.
+
+    AF: [type t] represents a collection of feature vectors and their
     corresponding labels, where the feature vectors serve as the keys of the
     hashtable of [type t] and the labels serve as the values associated with the
     keys.
 
     RI: All keys must be feature vectors of the same dimension. *)
 
-(** [check_csv_format loaded_file] is true if all lists in [loaded_file] are of
-    the same length and the first value in each of the lists is either 1 or -1.
-    It is false otherwise. *)
-
 let get_data_set (data : t) = data.data_set
 let get_dimension (data : t) = !(data.dimension)
 
+(** [check_csv_format loaded_file] is true if all lists in [loaded_file] are of
+    the same length and the first value in each of the lists is either 1 or -1.
+    It is false otherwise. *)
 let rec check_csv_format loaded_file =
   match loaded_file with
   | [] -> true
@@ -110,8 +115,6 @@ let count_labels data =
       | Positive -> (pos + 1, neg)
       | Negative -> (pos, neg + 1))
     (get_data_set data) (0, 0)
-
-let get_key (key : key) : int list = key
 
 let color_of_label = function
   | Positive -> Draw.blue
