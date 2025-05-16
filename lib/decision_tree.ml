@@ -2,10 +2,26 @@ open Data
 open Lin_alg
 
 type split = Lin_alg.t -> bool
+(** AF: [type split] is a type of function that outputs a boolean by comparing
+    the value at some predetermined dimension of a tensor to a predetermined
+    split value.
+
+    RI: [type split] functions must use the value in exactly one consistent
+    dimension of the input tensor, and must compare this value against one
+    consistent split value. Must return true if the tensor's value is greater
+    than the split value and false otherwise *)
 
 type t =
   | Leaf of Data.label
   | Tree of tree
+      (** AF: [type t] reprfesents a decision tree that subdivides data via
+          splits upon specific dimensions in order to create a piecewise linear
+          decision boundary
+
+          RI: When a tree subdivides data via a function [f] of [type split],
+          all data that satisfies [f data = true] is further subdivided in the
+          right subtree. The remaining data is subdivided in the left subtree.
+      *)
 
 and tree = {
   data : Data.t;
@@ -18,6 +34,17 @@ and tree = {
   left : t ref;
   right : t ref;
 }
+(** AF: [type tree] represents a non-leaf node of a decision tree. This node has
+    data_set [data] of size [data_size], and splits this data using function
+    [split] which compares tensor valus at dimension [split_dim] against value
+    [split_value]. [entropy] is the entropy of the node without splitting the
+    data. [max_splits] is the maximum number of splits that are allowed from
+    this node in the tree. Finally, [left] and [right] are references to the
+    left and right subtrees of this node.
+
+    RI: [entropy] must be greater than 0, or else there would be no point in
+    having a non-leaf node as opposed to a leaf node for this set of data. The
+    size of [data] must be greater than 1. *)
 
 let default_split : split = fun e -> true
 let tup_sum t = fst t + snd t
@@ -52,11 +79,6 @@ let rec init_decision_tree data_set max_splits =
         left = ref (Leaf positive);
         right = ref (Leaf negative);
       }
-
-and count_tree_labels tree =
-  match tree with
-  | Leaf _ -> (0, 0)
-  | Tree node -> Data.count_labels node.data
 
 and entropy (all_data : Data.t) data_size (splt : split) : float =
   (* SHORT‐CIRCUIT trivial cases *)

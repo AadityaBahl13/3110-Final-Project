@@ -26,7 +26,7 @@ let perceptron_init_test =
   assert_equal ~msg:"cols" (get_dimension data) c;
   for i = 0 to r - 1 do
     for j = 0 to c - 1 do
-      assert_equal ~msg:(Printf.sprintf "w[%d,%d]" i j) 0 (get w i j)
+      assert_equal ~msg:(Printf.sprintf "w[%d,%d]" i j) 1 (get w i j)
     done
   done;
   assert_equal ~msg:"bias" 0 (get_bias p)
@@ -84,7 +84,8 @@ let perceptron_train_test =
       assert_equal
         ~msg:(Printf.sprintf "classify %s" (label_to_string (x, lbl)))
         lbl (predict p x))
-    (data_to_list data)
+    (data_to_list data);
+  assert_equal true (check_perceptron p)
 
 (*------------------------------------------------------------------*)
 let tests =

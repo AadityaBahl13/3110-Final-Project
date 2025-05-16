@@ -1,4 +1,6 @@
 type tree
+(** [type tree] represents a node of a decision tree that is not a leaf, and
+    splits the data at this node via some function of type [split] *)
 
 type t =
   | Leaf of Data.label
@@ -36,5 +38,11 @@ val entropy : Data.t -> int -> split -> float
     that has size [size] with function [split] *)
 
 val get_left : tree -> t
+(** [get_left tree] is the left child of the node [tree] *)
+
 val get_right : tree -> t
+(** [get_left tree] is the right child of the node [tree] *)
+
 val get_split_dim_and_val : tree -> int * int
+(** [get_split_dim_and_val tree] is the dimension and the value that [tree]
+    splits its data upon *)

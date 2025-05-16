@@ -346,7 +346,9 @@ let update_canvas_dt dt area () =
   Sdl_area.add area (draw_dt dt)
 
 let run_training_stepwise steps_label =
-  let perceptron = init_perceptron !current_table 1000 in
+  let perceptron =
+    init_perceptron !current_table (int_of_string Sys.argv.(2))
+  in
   current_perceptron := Some perceptron;
   step_idx := 0;
   steps_taken := 0;
@@ -359,33 +361,38 @@ let do_step steps_label =
   match !current_perceptron with
   | None -> ()
   | Some perceptron ->
-      let data_array = Array.of_list (data_to_list !current_table) in
-      if !step_finished then W.set_text steps_label "Done!"
-      else if !step_idx >= Array.length data_array then
-        if check_perceptron perceptron then (
-          step_finished := true;
-          W.set_text steps_label "Done!")
-        else step_idx := 0
+      if !steps_taken >= int_of_string Sys.argv.(2) then
+        W.set_text steps_label "done"
       else
-        let input, label = data_array.(!step_idx) in
-        incr step_idx;
-        incr steps_taken;
-        let updated = step perceptron input label in
-        let weights =
-          to_list (get_weight perceptron) |> List.hd |> List.map float_of_int
-        in
-        W.set_text steps_label
-          ("Steps: " ^ string_of_int !steps_taken ^ "      ");
-        update_canvas ~weights (get_bias perceptron) area ();
-        if not updated then
-          List.iteri
-            (fun i w ->
-              print_endline
-                ("Weight [" ^ string_of_int i ^ "]: " ^ string_of_float w))
-            weights
+        let data_array = Array.of_list (data_to_list !current_table) in
+        if !step_finished then W.set_text steps_label "Done!"
+        else if !step_idx >= Array.length data_array then
+          if check_perceptron perceptron then (
+            step_finished := true;
+            W.set_text steps_label "Done!")
+          else step_idx := 0
+        else
+          let input, label = data_array.(!step_idx) in
+          incr step_idx;
+          incr steps_taken;
+          let updated = step perceptron input label in
+          let weights =
+            to_list (get_weight perceptron) |> List.hd |> List.map float_of_int
+          in
+          W.set_text steps_label
+            ("Steps: " ^ string_of_int !steps_taken ^ "      ");
+          update_canvas ~weights (get_bias perceptron) area ();
+          if not updated then
+            List.iteri
+              (fun i w ->
+                print_endline
+                  ("Weight [" ^ string_of_int i ^ "]: " ^ string_of_float w))
+              weights
 
 let run_training_final steps_label =
-  let perceptron = init_perceptron !current_table 100 in
+  let perceptron =
+    init_perceptron !current_table (int_of_string Sys.argv.(2))
+  in
   Finalproject.Perceptron.train perceptron;
   let weights =
     let w = to_list (get_weight perceptron) in
@@ -405,7 +412,7 @@ let run_training_final steps_label =
   W.set_text steps_label "Final result"
 
 let run_training_final_dt steps_label =
-  let dt = init_decision_tree !current_table 50 in
+  let dt = init_decision_tree !current_table (int_of_string Sys.argv.(3)) in
   Finalproject.Decision_tree.train dt;
   update_canvas_dt dt area ();
   W.set_text steps_label "Final result"
@@ -509,65 +516,48 @@ let update_screen () =
 
 let string_to_tensor str =
   let int_list = List.map int_of_string (String.split_on_char ' ' str) in
+  if List.length int_list <> get_dimension !current_table then
+    raise Finalproject.Lin_alg.InvalidDimensions;
   Finalproject.Lin_alg.create [ int_list ]
 
-let rec main_loop_perceptron perceptron =
+let rec main_loop perceptron d_tree =
   try
     print_endline "Please enter a new point:";
     let new_vec = input_line stdin in
     if new_vec = "exit" then exit 0;
     let tensor = string_to_tensor new_vec in
-    let prediction = Finalproject.Perceptron.predict perceptron tensor in
+    let prediction_p = Finalproject.Perceptron.predict perceptron tensor in
+    let prediction_dt = Finalproject.Decision_tree.predict d_tree tensor in
     print_endline
       ("The perceptron predicts that this point has label "
-      ^ label_to_string (tensor, prediction));
-    print_newline ();
-    main_loop_perceptron perceptron
-  with
-  | Finalproject.Lin_alg.InvalidDimensions ->
-      print_endline
-        ("The new point has to be of dimension "
-        ^ string_of_int (get_dimension !current_table));
-      print_newline ();
-      main_loop_perceptron perceptron
-  | int_of_string ->
-      print_endline "This is not a valid vector";
-      print_newline ();
-      main_loop_perceptron perceptron
-
-let rec main_loop_decision_tree tree =
-  try
-    print_endline "Please enter a new point:";
-    let new_vec = input_line stdin in
-    if new_vec = "exit" then exit 0;
-    let tensor = string_to_tensor new_vec in
-    let prediction = Finalproject.Decision_tree.predict tree tensor in
+      ^ label_to_string (tensor, prediction_p));
     print_endline
       ("The decision tree predicts that this point has label "
-      ^ label_to_string (tensor, prediction));
+      ^ label_to_string (tensor, prediction_dt));
     print_newline ();
-    main_loop_decision_tree tree
+    main_loop perceptron d_tree
   with
   | Finalproject.Lin_alg.InvalidDimensions ->
       print_endline
         ("The new point has to be of dimension "
         ^ string_of_int (get_dimension !current_table));
       print_newline ();
-      main_loop_decision_tree tree
+      main_loop perceptron d_tree
   | int_of_string ->
       print_endline "This is not a valid vector";
       print_newline ();
-      main_loop_decision_tree tree
+      main_loop perceptron d_tree
 
 let () =
   try
     if Array.length Sys.argv < 4 || Array.length Sys.argv > 5 then (
       print_endline
         ("Usage: " ^ Sys.argv.(0)
-       ^ " <csv_file> <model type> <model param> <g (gui)>");
+       ^ " <csv_file> <perceptron max_step> <decision_tree max_depth> <g (gui)>"
+        );
       exit 1);
 
-    if int_of_string Sys.argv.(3) <= 0 then
+    if int_of_string Sys.argv.(2) <= 0 || int_of_string Sys.argv.(3) <= 0 then
       failwith "You must pass a positive model parameter";
 
     let file = Sys.argv.(1) in
@@ -588,25 +578,22 @@ let () =
       L.fit_content root_layout;
       Bogue.run ~before_display:update_screen (Bogue.of_layout root_layout));
 
-    if Sys.argv.(2) = "perceptron" then (
-      let perceptron =
-        init_perceptron !current_table (int_of_string Sys.argv.(3))
-      in
-      Finalproject.Perceptron.train perceptron;
-      main_loop_perceptron perceptron)
-    else if Sys.argv.(2) = "decision_tree" then (
-      let tree =
-        init_decision_tree !current_table (int_of_string Sys.argv.(3))
-      in
-      Finalproject.Decision_tree.train tree;
-      main_loop_decision_tree tree)
-    else
-      failwith
-        "Invalid model type. You must pass \"perceptron\" or \"decision_tree\" \
-         as your model type"
+    print_newline ();
+
+    let perceptron =
+      init_perceptron !current_table (int_of_string Sys.argv.(2))
+    in
+    Finalproject.Perceptron.train perceptron;
+    let d_tree =
+      init_decision_tree !current_table (int_of_string Sys.argv.(3))
+    in
+    Finalproject.Decision_tree.train d_tree;
+    main_loop perceptron d_tree
   with
   | Failure x -> print_endline ("Error: " ^ x)
-  | _ -> print_endline "Error: An unknown exception has occured"
+  | int_of_string ->
+      print_endline
+        "Error: You must enter a numerical value for the model params"
 
 (* ---------- Other Functions ---------- *)
 let main_menu () =

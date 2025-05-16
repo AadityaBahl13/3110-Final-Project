@@ -1,8 +1,13 @@
 type t
-(** [type t] represents a tensor of up to two dimensions *)
+(** [type t] represents a tensor of two dimensions *)
 
 exception InvalidDimensions
+(** [excpetion InvalidDimensions] is raised when an operation requires a tensor
+    to be of a certain shape, but that tensor is not of that specific shape *)
+
 exception OutOfBound
+(** [excpetion OutOfBounds] is raised when an operation requires a value from a
+    tensor at a location that is out of bounds for the shape of that tensor *)
 
 val create : int list list -> t
 (** [create lst] is a tensor of [type t] with the same dimensions as [lst] and
@@ -31,6 +36,14 @@ val sum : ?axis:int option -> t -> t
     Raises: OutOfBounds if axis greater than 1 or less than 0 *)
 
 val scalar_mul : t -> int -> t
+(** [scalar_mul t c] is the tensor [t] with every element in [t] multiplied by
+    the value [c] *)
+
 val to_list : t -> int list list
+(** [to_list t] is a list representation of [t] *)
+
 val shape : t -> int * int
+(** [shape t] is the number of rows and columns that [t] has *)
+
 val get : t -> int -> int -> int
+(** [get t r c] is the value in row [r] and column [c] in tensor [t] *)

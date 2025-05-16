@@ -22,8 +22,11 @@ git-repo: "https://github.com/Jonahcb/3110-Final-Project"
 demo-video-url: "https://www.youtube.com/watch?v=avphWXjB1sk"
 # Write a short, attention-grabbing description of your project.
 desc: >
-  Our project aims to build a neural network (or perceptron, depending on time constraints)
-  equipped with a user-friendly graphical user interface (GUI). This interface is designed
+  Our project is a machine learning application that trains both a perceptron and a 
+  decision tree on user provided data, prompts the user for more points, and outputs the 
+  predictions from the two models concerning the label of that new point. It also includes 
+  a user-friendly graphical user interface (GUI) that allows the user to visualize the 
+  decision boundaries associated with these two models. This interface is designed
   not only to enhance the learning experience for users but also to serve as a dynamic
   platform for exploring the processes underlying how neural networks learn and adapt over
   time. The visualization aspect is crucial - as it will allow users to observe in real-time
